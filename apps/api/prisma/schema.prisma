@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum MatchStatus {
+  PENDING
+  OPEN
+  CLOSED
+  PUBLISHED
+}
+
+model Team {
+  id        Int     @id @default(autoincrement())
+  name      String  @unique @db.VarChar(80)
+  shortName String  @db.VarChar(12)
+  logo      String? @db.VarChar(160)
+  logoBytes Bytes?  @db.MediumBlob
+  logoType  String? @db.VarChar(32)
+  home      Match[] @relation("HomeTeam")
+  away      Match[] @relation("AwayTeam")
+}
+
+model Match {
+  id                 Int         @id @default(autoincrement())
+  homeId             Int
+  awayId             Int
+  home               Team        @relation("HomeTeam", fields: [homeId], references: [id])
+  away               Team        @relation("AwayTeam", fields: [awayId], references: [id])
+  startsAt           DateTime
+  tournament         String      @db.VarChar(80)
+  description        String?     @db.VarChar(600)
+  status             MatchStatus @default(PENDING)
+  openedAt           DateTime?
+  closedAt           DateTime?
+  publishedAt        DateTime?
+  homeScore          Int?
+  awayScore          Int?
+  winnerPredictionId Int?        @unique
+  winner             Prediction? @relation("Winner", fields: [winnerPredictionId], references: [id], onDelete: SetNull)
+  determinedAt       DateTime?
+  predictions        Prediction[] @relation("Predictions")
+
+  @@index([status, startsAt])
+}
+
+model Participant {
+  id          Int          @id @default(autoincrement())
+  tokenHash   String       @unique @db.Char(64)
+  createdAt   DateTime     @default(now())
+  predictions Prediction[]
+}
+
+model Prediction {
+  id            Int         @id @default(autoincrement())
+  matchId       Int
+  participantId Int
+  homeScore     Int
+  awayScore     Int
+  createdAt     DateTime    @default(now()) @db.DateTime(3)
+  match         Match       @relation("Predictions", fields: [matchId], references: [id])
+  participant   Participant @relation(fields: [participantId], references: [id])
+  wonMatch      Match?      @relation("Winner")
+
+  @@unique([matchId, participantId])
+  @@index([matchId, homeScore, awayScore, createdAt, id])
+}
+
+model Admin {
+  id           Int            @id @default(autoincrement())
+  login        String         @unique @db.VarChar(80)
+  passwordHash String         @db.VarChar(180)
+  createdAt    DateTime       @default(now())
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  tokenHash String   @id @db.Char(64)
+  adminId   Int
+  expiresAt DateTime
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([expiresAt])
+}

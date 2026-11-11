@@ -1,0 +1,211 @@
+[
+  {
+    "name": "АКМ",
+    "shortName": "АКМ",
+    "logo": "/images/vhl/400716.png",
+    "profile": "https://www.vhlru.ru/teams/400716/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/480/%D0%90%D0%9A%D0%9C.png"
+  },
+  {
+    "name": "Барс",
+    "shortName": "БРС",
+    "logo": "/images/vhl/47617.png",
+    "profile": "https://www.vhlru.ru/teams/47617/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/b1c/%D0%91%D0%B0%D1%80%D1%81.png"
+  },
+  {
+    "name": "Буран",
+    "shortName": "БУР",
+    "logo": "/images/vhl/20790.png",
+    "profile": "https://www.vhlru.ru/teams/20790/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/aaa/%D0%91%D1%83%D1%80%D0%B0%D0%BD.png"
+  },
+  {
+    "name": "Горняк-УГМК",
+    "shortName": "ГОР",
+    "logo": "/images/vhl/400715.png",
+    "profile": "https://www.vhlru.ru/teams/400715/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/02c/%D0%93%D0%BE%D1%80%D0%BD%D1%8F%D0%BA.png"
+  },
+  {
+    "name": "Дизель",
+    "shortName": "ДЗЛ",
+    "logo": "/images/vhl/379.png",
+    "profile": "https://www.vhlru.ru/teams/379/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/0ef/%D0%94%D0%B8%D0%B7%D0%B5%D0%BB%D1%8C.png"
+  },
+  {
+    "name": "Динамо СПб",
+    "shortName": "ДСП",
+    "logo": "/images/vhl/90707.png",
+    "profile": "https://www.vhlru.ru/teams/90707/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/3c2/%D0%94%D0%B8%D0%BD%D0%B0%D0%BC%D0%BE%20%D0%A1%D0%9F%D0%B1.png"
+  },
+  {
+    "name": "Динамо-Алтай",
+    "shortName": "АЛТ",
+    "logo": "/images/vhl/460278.png",
+    "profile": "https://www.vhlru.ru/teams/460278/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/96f/%D0%94%D0%B8%D0%BD%D0%B0%D0%BC%D0%BE-%D0%90%D0%BB%D1%82%D0%B0%D0%B9.png"
+  },
+  {
+    "name": "Зауралье",
+    "shortName": "ЗРЛ",
+    "logo": "/images/vhl/391.png",
+    "profile": "https://www.vhlru.ru/teams/391/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/a12/%D0%97%D0%B0%D1%83%D1%80%D0%B0%D0%BB%D1%8C%D0%B5.png"
+  },
+  {
+    "name": "Звезда",
+    "shortName": "ЗВД",
+    "logo": "/images/vhl/67713.png",
+    "profile": "https://www.vhlru.ru/teams/67713/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/a2c/%D0%97%D0%B2%D0%B5%D0%B7%D0%B4%D0%B0.png"
+  },
+  {
+    "name": "Ижсталь",
+    "shortName": "ИЖС",
+    "logo": "/images/vhl/387.png",
+    "profile": "https://www.vhlru.ru/teams/387/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/403/%D0%98%D0%B6%D1%81%D1%82%D0%B0%D0%BB%D1%8C.png"
+  },
+  {
+    "name": "Кристалл",
+    "shortName": "КРТ",
+    "logo": "/images/vhl/460279.png",
+    "profile": "https://www.vhlru.ru/teams/460279/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/441/%D0%9A%D1%80%D0%B8%D1%81%D1%82%D0%B0%D0%BB%D0%BB.png"
+  },
+  {
+    "name": "Магнитка",
+    "shortName": "МГТ",
+    "logo": "/images/vhl/505612.png",
+    "profile": "https://www.vhlru.ru/teams/505612/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/8d4/%D0%9C%D0%B0%D0%B3%D0%BD%D0%B8%D1%82%D0%BA%D0%B0.png"
+  },
+  {
+    "name": "Металлург",
+    "shortName": "МНК",
+    "logo": "/images/vhl/154152.png",
+    "profile": "https://www.vhlru.ru/teams/154152/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/2f1/%D0%9C%D0%B5%D1%82%D0%B0%D0%BB%D0%BB%D1%83%D1%80%D0%B3.png"
+  },
+  {
+    "name": "Молот",
+    "shortName": "МЛТ",
+    "logo": "/images/vhl/383.png",
+    "profile": "https://www.vhlru.ru/teams/383/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/27f/%D0%9C%D0%BE%D0%BB%D0%BE%D1%82.png"
+  },
+  {
+    "name": "Нефтяник",
+    "shortName": "НФТ",
+    "logo": "/images/vhl/375.png",
+    "profile": "https://www.vhlru.ru/teams/375/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/087/%D0%9D%D0%B5%D1%84%D1%82%D1%8F%D0%BD%D0%B8%D0%BA.png"
+  },
+  {
+    "name": "Олимпия",
+    "shortName": "ОЛМ",
+    "logo": "/images/vhl/505613.png",
+    "profile": "https://www.vhlru.ru/teams/505613/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/5a9/%D0%9E%D0%BB%D0%B8%D0%BC%D0%BF%D0%B8%D1%8F.png"
+  },
+  {
+    "name": "Омские Крылья",
+    "shortName": "ОКР",
+    "logo": "/images/vhl/400717.png",
+    "profile": "https://www.vhlru.ru/teams/400717/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/2c0/%D0%9E%D0%BC%D1%81%D0%BA%D0%B8%D0%B5%20%D0%BA%D1%80%D1%8B%D0%BB%D1%8C%D1%8F.png"
+  },
+  {
+    "name": "Рубин",
+    "shortName": "РУБ",
+    "logo": "/images/vhl/384.png",
+    "profile": "https://www.vhlru.ru/teams/384/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/a6f/%D0%A0%D1%83%D0%B1%D0%B8%D0%BD%20-%20%D1%81%D0%B2%D0%B5%D1%82%D0%BB%D1%8B%D0%B9%20%D1%84%D0%BE%D0%BD.png"
+  },
+  {
+    "name": "Рязань-ВДВ",
+    "shortName": "РЯЗ",
+    "logo": "/images/vhl/378.png",
+    "profile": "https://www.vhlru.ru/teams/378/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/d38/%D0%A0%D1%8F%D0%B7%D0%B0%D0%BD%D1%8C-%D0%92%D0%94%D0%92.png"
+  },
+  {
+    "name": "СКА-ВМФ",
+    "shortName": "ВМФ",
+    "logo": "/images/vhl/376.png",
+    "profile": "https://www.vhlru.ru/teams/376/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/a95/%D0%A1%D0%9A%D0%90-%D0%92%D0%9C%D0%A4.png"
+  },
+  {
+    "name": "Сокол",
+    "shortName": "СКЛ",
+    "logo": "/images/vhl/8016.png",
+    "profile": "https://www.vhlru.ru/teams/8016/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/fc8/Sokol-25_26.png"
+  },
+  {
+    "name": "Торос",
+    "shortName": "ТРС",
+    "logo": "/images/toros.svg",
+    "profile": "https://www.vhlru.ru/teams/390/"
+  },
+  {
+    "name": "ХК Калуга",
+    "shortName": "КЛГ",
+    "logo": "/images/vhl/603516.png",
+    "profile": "https://www.vhlru.ru/teams/603516/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/625/%D0%9A%D0%B0%D0%BB%D1%83%D0%B3%D0%B0.png"
+  },
+  {
+    "name": "ХК Норильск",
+    "shortName": "НРК",
+    "logo": "/images/vhl/460280.png",
+    "profile": "https://www.vhlru.ru/teams/460280/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/f4a/%D0%9D%D0%BE%D1%80%D0%B8%D0%BB%D1%8C%D1%81%D0%BA.png"
+  },
+  {
+    "name": "Тамбов",
+    "shortName": "ТАМ",
+    "logo": "/images/vhl/216719.png",
+    "profile": "https://www.vhlru.ru/teams/216719/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/a44/%D0%A5%D0%9A%20%D0%A2%D0%B0%D0%BC%D0%B1%D0%BE%D0%B2%20%D1%82%D0%B5%D0%BC%D0%BD%D1%8B%D0%B9.png"
+  },
+  {
+    "name": "Химик",
+    "shortName": "ХИМ",
+    "logo": "/images/vhl/67715.png",
+    "profile": "https://www.vhlru.ru/teams/67715/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/d6f/%D0%A5%D0%B8%D0%BC%D0%B8%D0%BA.png"
+  },
+  {
+    "name": "ЦСК ВВС",
+    "shortName": "ВВС",
+    "logo": "/images/vhl/154156.png",
+    "profile": "https://www.vhlru.ru/teams/154156/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/61b/%D0%A6%D0%A1%D0%9A%20%D0%92%D0%92%D0%A1.png"
+  },
+  {
+    "name": "Челмет",
+    "shortName": "ЧЕЛ",
+    "logo": "/images/vhl/20795.png",
+    "profile": "https://www.vhlru.ru/teams/20795/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/63a/%D0%A7%D0%B5%D0%BB%D0%BC%D0%B5%D1%82%20%D1%87%D0%B1%20%D1%82%D0%BE%D0%BD%D0%BA%D0%B0%D1%8F%20%D0%BE%D0%B1%D0%B2%D0%BE%D0%B4%D0%BA%D0%B0.png"
+  },
+  {
+    "name": "Югра",
+    "shortName": "ЮГР",
+    "logo": "/images/vhl/216716.png",
+    "profile": "https://www.vhlru.ru/teams/216716/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/e0f/%D0%AE%D0%B3%D1%80%D0%B0.png"
+  },
+  {
+    "name": "Южный Урал",
+    "shortName": "ЮУР",
+    "logo": "/images/vhl/388.png",
+    "profile": "https://www.vhlru.ru/teams/388/",
+    "assetSource": "https://www.vhlru.ru/upload/iblock/cda/%D0%AE%D0%A3.png"
+  }
+]
