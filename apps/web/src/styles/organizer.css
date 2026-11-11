@@ -46,8 +46,8 @@
   color-scheme: dark;
   color: #eef3f9;
   background:
-    radial-gradient(ellipse at 50% 44%, #06152d 12%, #06152dfa 26%, #06152dd9 44%, #06152d64 74%, #06152d85 100%),
-    #06152d url('/images/arena-wide.webp') center 45% / cover;
+    radial-gradient(ellipse at 50% 45%, #06152ddd 0%, #06152da8 45%, #06152d66 100%),
+    #06152d url('/images/ice-texture.webp') center / cover no-repeat;
 }
 .workspace-brand { display: flex; gap: .8rem; align-items: center; line-height: 1.2; }
 .workspace-brand img { flex: 0 0 auto; height: auto; }
