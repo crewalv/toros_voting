@@ -41,8 +41,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 900; }
   width: min(100%, 440px);
   min-height: 100svh;
   background:
-    linear-gradient(180deg, #031225a6 0%, #06295138 37%, #0527563b 63%, #03132bf2 100%),
-    #071d39 url('/images/arena.webp') center top / cover no-repeat;
+    linear-gradient(180deg, #03122533 0%, #031a3555 27%, #03152be8 65%, #03132b 100%),
+    #071d39 url('/images/ice-texture.webp') 72% top / auto 70% no-repeat;
   box-shadow: 0 0 90px #0008;
 }
 
@@ -170,8 +170,8 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-page {
   min-height: 100svh;
   padding: clamp(1.2rem, 3.5vw, 4.5rem);
-  background: linear-gradient(112deg, #031020a0, #06295130 62%, #030e22d9),
-    #06152d url('/images/arena-wide.webp') center / cover;
+  background: linear-gradient(112deg, #03102099, #06295133 62%, #030e2288),
+    #06152d url('/images/ice-texture.webp') center / cover no-repeat;
   display: flex;
   flex-direction: column;
   justify-content: center;
