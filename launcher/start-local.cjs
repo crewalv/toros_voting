@@ -1,4 +1,4 @@
-const { spawn } = require('node:child_process');
+const { spawn, spawnSync } = require('node:child_process');
 const fs = require('node:fs');
 const net = require('node:net');
 const path = require('node:path');
@@ -18,7 +18,19 @@ async function ready(url, test, child) { for (let i = 0; i < 40; i++) { if (chil
  console.log('\nПроверка программы «Торос»...');
  if (Number(process.versions.node.split('.')[0]) < 22 || (Number(process.versions.node.split('.')[0]) === 22 && Number(process.versions.node.split('.')[1]) < 12)) throw Error('Нужен Node.js версии 22.12 или новее.');
  if (!fs.existsSync('.env')) throw Error('Не найден файл .env с настройками базы и администратора.');
- if (!fs.existsSync('node_modules/vite/bin/vite.js') || !fs.existsSync('node_modules/@prisma/client')) throw Error('Не установлены зависимости проекта. В папке проекта выполните npm ci.');
+ if (!fs.existsSync('node_modules/vite/bin/vite.js') || !fs.existsSync('node_modules/@prisma/client')) {
+  console.log('Устанавливаем зависимости...');
+  const install = spawnSync('cmd.exe', ['/d', '/s', '/c', 'npm.cmd ci'], {stdio: 'inherit'});
+  if (install.status !== 0) throw Error('Не удалось установить зависимости. Проверьте интернет и сообщения выше.');
+ }
+ if (process.platform === 'win32') {
+  const check = spawnSync('powershell.exe', ['-NoProfile', '-Command', '(Get-Service -Name MySQL84 -ErrorAction SilentlyContinue).Status'], {encoding:'utf8'});
+  if (check.stdout && check.stdout.trim() !== 'Running') {
+   console.log('Запускаем MySQL. Windows может запросить права администратора.');
+   const service = spawnSync('powershell.exe', ['-NoProfile', '-Command', 'try { Start-Service -Name MySQL84 -ErrorAction Stop } catch { Start-Process powershell.exe -Verb RunAs -Wait -ArgumentList \"-NoProfile -Command Start-Service -Name MySQL84\" }'], {stdio:'inherit'});
+   if (service.status !== 0) throw Error('Не удалось запустить службу MySQL84.');
+  }
+ }
  for (const port of [3001, 5173]) if (!await free(port)) throw Error(`Порт ${port} уже занят. Возможно, программа уже запущена в другом окне. Закройте прежний запуск и попробуйте снова.`);
  console.log('Запуск сервера и проверка базы данных...');
  const api = start(['--env-file-if-exists=.env', 'apps/api/src/server.js'], 'сервера');
