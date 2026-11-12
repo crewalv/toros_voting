@@ -50,7 +50,7 @@ export function TeamForm({ team, onSave }: { team?: Team; onSave: () => Promise<
   return <FormPanel title={team ? 'Редактирование команды' : 'Новая команда'} submitText="Сохранить команду" onSubmit={async (data) => {
     const logo = data.get('logo');
     if (logo instanceof File && !logo.size) data.delete('logo');
-    await api('/admin/teams' + (team ? '/' + team.id : ''), request(team ? 'PUT' : 'POST', data));
+    await api('/admin/teams' + (team ? '/' + team.id : ''), request('POST', data));
     await onSave();
   }}>
     <label>Название<input name="name" required maxLength={80} defaultValue={team?.name} readOnly={team?.name === 'Торос'} /></label>
