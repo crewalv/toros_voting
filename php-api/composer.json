@@ -1,0 +1,10 @@
+{
+  "name": "toros/voting-api",
+  "require": {
+    "php": "^8.2",
+    "ext-pdo_mysql": "*",
+    "ext-gd": "*",
+    "ext-mbstring": "*",
+    "endroid/qr-code": "^5.1"
+  }
+}

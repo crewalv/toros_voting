@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { z } from 'zod';
 import QRCode from 'qrcode';
-import { allMatches, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch } from './store.js';
+import { allMatches, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch, withMatchLock } from './store.js';
 import { checkPassword, hashToken, newToken, validToken } from './security.js';
 
 const api = Router();
@@ -157,6 +157,7 @@ async function saveTeam(req, res) {
 }
 api.post('/admin/teams', upload.single('logo'), saveTeam);
 api.put('/admin/teams/:id', upload.single('logo'), saveTeam);
+api.post('/admin/teams/:id', upload.single('logo'), saveTeam);
 
 api.post('/admin/matches', async (req, res) => {
   const data = z.object({
@@ -172,6 +173,16 @@ api.post('/admin/matches', async (req, res) => {
     select: { id: true },
   });
   res.status(201).json(match);
+});
+
+api.delete('/admin/matches/:id', async (req, res) => {
+  const id = idFrom(req.params.id);
+  await withMatchLock(id, async (tx) => {
+    await tx.match.update({ where: { id }, data: { winnerPredictionId: null } });
+    await tx.prediction.deleteMany({ where: { matchId: id } });
+    await tx.match.delete({ where: { id } });
+  });
+  res.sendStatus(204);
 });
 
 const matchAction = z.discriminatedUnion('kind', [

@@ -1,0 +1,4 @@
+/vendor/
+/public/*
+!/public/index.php
+!/public/.htaccess

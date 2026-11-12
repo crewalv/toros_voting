@@ -156,6 +156,17 @@ function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promi
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
+  async function deleteMatch() {
+    const label = match.home.name + ' — ' + match.away.name;
+    if (!window.confirm('Удалить матч «' + label + '» и все его прогнозы? Восстановить их из панели не получится.')) return;
+    setError('');
+    setBusy(true);
+    try {
+      await api('/admin/matches/' + match.id, request('DELETE'));
+      await onUpdate();
+    } catch (cause) { setError(errorMessage(cause)); }
+    finally { setBusy(false); }
+  }
   const result = match.result;
   return <>
     <section className="admin-panel match-manager" id="match-management">
@@ -170,6 +181,7 @@ function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promi
         {match.status === 'PENDING' && <button className="button primary" disabled={busy} onClick={() => run('open')}>Начать голосование</button>}
         {match.status === 'OPEN' && <button className="button danger" disabled={busy} onClick={() => run('close')}>Завершить голосование</button>}
         {match.status === 'CLOSED' && result && !result.determined && <button className="button primary" disabled={busy} onClick={() => run('determine')}>Определить победителя</button>}
+        <button className="button danger" disabled={busy} onClick={deleteMatch}>Удалить матч</button>
         {match.status === 'CLOSED' && result?.determined && <button className="button primary" disabled={busy} onClick={() => run('publish')}>Опубликовать результаты</button>}
       </div>
       {result && <div className="result-preview">

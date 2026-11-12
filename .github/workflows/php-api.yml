@@ -1,0 +1,47 @@
+name: PHP voting integration
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  php-api:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: test-root-password
+          MYSQL_DATABASE: toros_test
+          MYSQL_USER: toros
+          MYSQL_PASSWORD: test-db-password
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=5s --health-retries=20
+    env:
+      DATABASE_URL: mysql://toros:test-db-password@127.0.0.1:3306/toros_test
+      ADMIN_LOGIN: organizer
+      ADMIN_PASSWORD: test-admin-password
+      PUBLIC_BASE_URL: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_mysql, gd, mbstring, fileinfo
+          tools: composer
+      - run: find php-api -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: composer install --working-dir=php-api --no-interaction --no-dev
+      - run: npm ci --ignore-scripts && npm run build
+      - run: cp -R dist/. php-api/public/
+      - run: php php-api/setup.php
+      - name: Test voting and deletion
+        run: |
+          php -S 127.0.0.1:8000 -t php-api/public php-api/router.php > /tmp/toros.log 2>&1 &
+          trap 'kill $!; cat /tmp/toros.log' EXIT
+          curl --fail --retry 10 --retry-connrefused http://127.0.0.1:8000/api/health
+          curl --fail http://127.0.0.1:8000/admin >/dev/null
+          node php-api/smoke.mjs
