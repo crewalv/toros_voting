@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowDownToLine, ArrowRight, ArrowUpRight, CalendarDays, ClipboardList, LogOut, Monitor, Plus, Shield, Users } from 'lucide-react';
+import { ArrowDownToLine, ArrowRight, ArrowUpRight, CalendarDays, ClipboardList, LogOut, Monitor, Plus, Shield, Trash2, Users } from 'lucide-react';
 import type { Match, Overview, Team } from '../../../../../packages/contracts/src';
 import { api, ApiError, errorMessage, request } from '../../api';
 import { matchDate, numberLabel, statusText, voteTime } from '../../format';
@@ -27,6 +27,7 @@ export function AdminPage() {
   const [tab, setTab] = useState<Tab>('matches');
   const [selected, setSelected] = useState<number>();
   const [newMatch, setNewMatch] = useState(false);
+  const [deletingMatchId, setDeletingMatchId] = useState<number | null>(null);
   const [editingTeam, setEditingTeam] = useState<Team | null>();
   async function refresh() {
     try {
@@ -43,6 +44,18 @@ export function AdminPage() {
     const interval = setInterval(() => { if (!document.hidden) void refresh(); }, 10000);
     return () => clearInterval(interval);
   }, [Boolean(overview)]);
+
+  async function deleteMatch(item: Match) {
+    if (!window.confirm(`Удалить матч «${item.home.name} — ${item.away.name}»?\n\nВсе ${item.count} прогнозов и результаты будут удалены без возможности восстановления.`)) return;
+    setDeletingMatchId(item.id);
+    setError('');
+    try {
+      await api('/admin/matches/' + item.id, request('DELETE'));
+      if (selected === item.id) setSelected(undefined);
+      await refresh();
+    } catch (cause) { setError(errorMessage(cause)); }
+    finally { setDeletingMatchId(null); }
+  }
 
   async function logout() {
     try {
@@ -107,7 +120,7 @@ export function AdminPage() {
             <div className="section-head"><h2>Все матчи</h2></div>
             {overview.matches.length === 0 ? <p className="muted">Добавьте первый матч конкурса.</p> :
               <div className="table-wrap"><table>
-                <thead><tr><th scope="col">Матч</th><th scope="col">Начало · UTC+5</th><th scope="col">Статус</th><th scope="col">Прогнозы</th></tr></thead>
+                <thead><tr><th scope="col">Матч</th><th scope="col">Начало · UTC+5</th><th scope="col">Статус</th><th scope="col">Прогнозы</th><th scope="col">Действия</th></tr></thead>
                 <tbody>{overview.matches.map((item) => <tr key={item.id} className={!newMatch && match?.id === item.id ? 'selected-match' : undefined}>
                   <td><button className="match-row-button" aria-pressed={!newMatch && match?.id === item.id}
                     aria-controls="match-management"
@@ -122,6 +135,9 @@ export function AdminPage() {
                     {item.status === 'PUBLISHED' && item.result && <small>{item.result.homeScore}:{item.result.awayScore} · {item.result.winner ? 'Участник ' + numberLabel(item.result.winner.number) : 'Без победителя'}</small>}
                   </td>
                   <td>{matchDate(item.startsAt)}</td><td><MatchBadge status={item.status} /></td><td>{item.count}</td>
+                  <td><button className="button danger" type="button" disabled={deletingMatchId !== null}
+                    aria-label={'Удалить матч «' + item.home.name + ' — ' + item.away.name + '»'}
+                    onClick={() => void deleteMatch(item)}><Trash2 size={16} /> Удалить</button></td>
                 </tr>)}</tbody>
               </table></div>}
           </section>
