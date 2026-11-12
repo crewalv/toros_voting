@@ -55,8 +55,10 @@ export function TeamForm({ team, onSave }: { team?: Team; onSave: () => Promise<
   }}>
     <label>Название<input name="name" required maxLength={80} defaultValue={team?.name} readOnly={team?.name === 'Торос'} /></label>
     <label>Краткое обозначение<input name="shortName" required maxLength={12} defaultValue={team?.shortName} /></label>
-    <label>Эмблема<input name="logo" type="file" accept="image/png,image/jpeg,image/webp" required={!team} /></label>
-    <small>PNG, JPEG или WebP, до 1 МБ.</small>
+    {team?.name !== 'Торос' && <>
+      <label>Эмблема<input name="logo" type="file" accept="image/png,image/jpeg,image/webp" required={!team} /></label>
+      <small>PNG, JPEG или WebP, до 1 МБ.</small>
+    </>}
   </FormPanel>;
 }
 
