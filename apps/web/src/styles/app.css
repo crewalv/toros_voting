@@ -231,6 +231,21 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .button.primary:hover { background: #008535; }
 .button.danger { border-color: #ab5452; background: #742e35; }
 .button.danger:hover { background: #8b343a; }
+@media (max-width: 559px) {
+  .voting-page {
+    --poster-top: max(1rem, env(safe-area-inset-top, 0px));
+    --poster-bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+    padding: var(--poster-top) max(.75rem, env(safe-area-inset-right, 0px))
+      var(--poster-bottom) max(.75rem, env(safe-area-inset-left, 0px));
+  }
+  .poster {
+    min-height: calc(100svh - var(--poster-top) - var(--poster-bottom));
+    border: 1px solid #284664;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .poster-inner { padding: 7.2cqw 5.15cqw 7cqw; }
+}
 @media (min-width: 560px) {
   .voting-page { padding: 1.25rem 0; }
   .poster { min-height: calc(100svh - 2.5rem); border: 1px solid #284664; border-radius: 14px; overflow: hidden; }
