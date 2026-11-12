@@ -54,7 +54,8 @@ api.get('/matches/nearest', async (_req, res) => {
     where: { status: 'PENDING', startsAt: { gte: new Date() } },
     orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], select: { id: true },
   }) ?? await db.match.findFirst({
-    where: { status: 'PENDING' }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
+    where: { status: { in: ['PENDING', 'CLOSED', 'PUBLISHED'] } },
+    orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
   });
   res.json({ id: match?.id ?? null });
 });

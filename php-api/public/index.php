@@ -236,7 +236,7 @@ function route(string $method, string $path): never {
     if ($method === 'GET' && $path === '/matches/nearest') {
         $match = row("SELECT id FROM `Match` WHERE status='OPEN' ORDER BY startsAt DESC, id DESC LIMIT 1")
             ?? row("SELECT id FROM `Match` WHERE status='PENDING' AND startsAt >= UTC_TIMESTAMP(3) ORDER BY startsAt ASC, id ASC LIMIT 1")
-            ?? row("SELECT id FROM `Match` WHERE status='PENDING' ORDER BY startsAt DESC, id DESC LIMIT 1");
+            ?? row("SELECT id FROM `Match` WHERE status IN ('PENDING','CLOSED','PUBLISHED') ORDER BY startsAt DESC, id DESC LIMIT 1");
         respond(['id'=>$match ? (int)$match['id'] : null]);
     }
     if ($method === 'GET' && preg_match('~^/teams/([1-9][0-9]{0,9})/logo$~D',$path,$m)) {

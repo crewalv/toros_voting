@@ -13,19 +13,27 @@ function HomeMatch() {
 
   useEffect(() => {
     const controller = new AbortController();
-    api<{ id: number | null }>('/matches/nearest', { signal: controller.signal })
-      .then(({ id }) => {
+    let timeout: ReturnType<typeof setTimeout>;
+    async function update() {
+      try {
+        const { id } = await api<{ id: number | null }>('/matches/nearest', { signal: controller.signal });
         if (controller.signal.aborted) return;
-        if (id !== null) setMatchId(id);
-        else setMessage('Ближайший матч пока не назначен.');
-      })
-      .catch((error: unknown) => {
-        if (!controller.signal.aborted) setMessage(errorMessage(error));
-      });
-    return () => controller.abort();
+        setMatchId(id);
+        setMessage('Ближайший матч пока не назначен.');
+      } catch (error) {
+        if (controller.signal.aborted) return;
+        setMessage(errorMessage(error));
+      }
+      timeout = setTimeout(update, 15000 + Math.random() * 1000);
+    }
+    void update();
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
   }, []);
 
-  if (matchId !== null) return <VotingPage id={matchId} />;
+  if (matchId !== null) return <VotingPage key={matchId} id={matchId} />;
 
   return <main className="message-page">
     <section className="landing-panel">
