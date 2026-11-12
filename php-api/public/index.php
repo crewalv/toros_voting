@@ -233,6 +233,12 @@ function route(string $method, string $path): never {
         db()->query('SELECT 1');
         respond(['ok'=>true]);
     }
+    if ($method === 'GET' && $path === '/matches/nearest') {
+        $match = row("SELECT id FROM `Match` WHERE status='OPEN' ORDER BY startsAt DESC, id DESC LIMIT 1")
+            ?? row("SELECT id FROM `Match` WHERE status='PENDING' AND startsAt >= UTC_TIMESTAMP(3) ORDER BY startsAt ASC, id ASC LIMIT 1")
+            ?? row("SELECT id FROM `Match` WHERE status='PENDING' ORDER BY startsAt DESC, id DESC LIMIT 1");
+        respond(['id'=>$match ? (int)$match['id'] : null]);
+    }
     if ($method === 'GET' && preg_match('~^/teams/([1-9][0-9]{0,9})/logo$~D',$path,$m)) {
         $team = row('SELECT logoType,logoBytes FROM Team WHERE id=?', [(int)$m[1]]);
         if (empty($team['logoBytes'])) fail(404, 'Эмблема не найдена.');

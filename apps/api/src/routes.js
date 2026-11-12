@@ -47,6 +47,18 @@ api.get('/health', async (_req, res) => {
   res.json({ ok: true });
 });
 
+api.get('/matches/nearest', async (_req, res) => {
+  const match = await db.match.findFirst({
+    where: { status: 'OPEN' }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
+  }) ?? await db.match.findFirst({
+    where: { status: 'PENDING', startsAt: { gte: new Date() } },
+    orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], select: { id: true },
+  }) ?? await db.match.findFirst({
+    where: { status: 'PENDING' }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
+  });
+  res.json({ id: match?.id ?? null });
+});
+
 api.post('/matches/:id/session', limit(arenaLimit('SESSION_REQUESTS_PER_MINUTE', 2000), 60_000), async (req, res) => {
   const id = idFrom(req.params.id);
   if (!await db.match.findUnique({ where: { id }, select: { id: true } })) throw new HttpError(404, 'Матч не найден.');
