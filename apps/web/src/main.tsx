@@ -7,7 +7,8 @@ import { api, errorMessage } from './api';
 import './styles/app.css';
 import './styles/organizer.css';
 
-function HomeRedirect() {
+function HomeMatch() {
+  const [matchId, setMatchId] = useState<number | null>(null);
   const [message, setMessage] = useState('Ищем ближайший матч…');
 
   useEffect(() => {
@@ -15,7 +16,7 @@ function HomeRedirect() {
     api<{ id: number | null }>('/matches/nearest', { signal: controller.signal })
       .then(({ id }) => {
         if (controller.signal.aborted) return;
-        if (id !== null) window.location.replace('/match/' + id);
+        if (id !== null) setMatchId(id);
         else setMessage('Ближайший матч пока не назначен.');
       })
       .catch((error: unknown) => {
@@ -23,6 +24,8 @@ function HomeRedirect() {
       });
     return () => controller.abort();
   }, []);
+
+  if (matchId !== null) return <VotingPage id={matchId} />;
 
   return <main className="message-page">
     <section className="landing-panel">
@@ -40,7 +43,7 @@ function App() {
   if (route) return route[1] === 'match' ? <VotingPage id={Number(route[2])} /> : <DisplayPage id={Number(route[2])} />;
   if (path === '/admin') return <AdminPage />;
   if (path === '/preview') return <PreviewPage />;
-  return <HomeRedirect />;
+  return <HomeMatch />;
 }
 
 createRoot(document.getElementById('root')!).render(<App />);
