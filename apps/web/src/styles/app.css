@@ -251,6 +251,37 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
   letter-spacing: 0;
 }
 .display-published .display-footer { font-size: clamp(1.2rem, min(3.4vw, 6svh), 3.75rem); }
+@media (min-width: 900px) and (min-aspect-ratio: 5/4) and (max-height: 650px) {
+  .display-live {
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto minmax(min-content, 1fr);
+    align-content: start;
+    gap: 0 2vw;
+    padding: 1rem 3vw;
+  }
+  .display-live .display-header { gap: .4rem; }
+  .display-live .display-header p { font-size: clamp(1.45rem, 2.5vw, 2rem); }
+  .display-live h1 { font-size: clamp(3rem, 10svh, 4rem); }
+  .display-live .team-mark { font-size: clamp(2.5rem, 4.5vw, 3.3rem); }
+  .display-live .team-emblem img { height: min(29svh, 190px); }
+  .display-live .display-qr { gap: .45rem; }
+  .display-live .display-qr p {
+    font-size: clamp(2.3rem, 4.3vw, 3rem);
+    color: #fff;
+    background: #06152d;
+    width: 100%;
+    padding: .35rem .15rem;
+  }
+  .display-live .display-footer {
+    align-self: end;
+    margin-top: .6rem;
+    padding: .25rem .6rem;
+    background: #06152d;
+    color: #fff;
+    font-size: clamp(2.35rem, 4.7vw, 3.5rem);
+    font-weight: 900;
+  }
+}
 @media (min-aspect-ratio: 5/4) and (max-height: 650px) {
   .display-page:is(.display-published, .display-closed) { padding: 1rem 3vw; }
   .display-published { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: 3vw; }
