@@ -284,17 +284,30 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 }
 @media (min-aspect-ratio: 5/4) and (max-height: 650px) {
   .display-page:is(.display-published, .display-closed) { padding: 1rem 3vw; }
+  .display-page:is(.display-published, .display-closed) .display-header { gap: .4rem; }
+  .display-page:is(.display-published, .display-closed) .display-header p {
+    font-size: clamp(1.2rem, 2.4vw, 1.85rem);
+  }
+  .display-closed .team-mark { font-size: clamp(2rem, 4.5vw, 3.3rem); }
+  .display-closed .team-emblem img { height: min(29svh, 190px); }
   .display-published { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: 3vw; }
-  .display-published .display-header { flex-wrap: nowrap; }
-  .display-published .display-header p { font-size: clamp(.8rem, 1.55vw, 1.2rem); }
-  .display-published h1 { font-size: clamp(2.3rem, 10svh, 3.8rem); }
+  .display-published .display-header { grid-column: 1 / -1; }
+  .display-published .teams { grid-row-start: 2; }
+  .display-published h1 { font-size: clamp(2.3rem, 8.5svh, 3.5rem); }
   .display-published .ice-stroke { height: 5px; margin: .25rem 0 .4rem; }
-  .display-published .score-tile { font-size: clamp(4rem, min(11vw, 19svh), 7rem); }
+  .display-published .score-tile { font-size: clamp(4rem, min(10vw, 16.5svh), 7rem); }
   .display-published .team-winner { margin: .35rem 0; }
-  .display-published .winner-card { gap: .25rem; padding: .5rem .85rem; font-size: clamp(1.2rem, min(3vw, 5.5svh), 2rem); }
+  .display-published .winner-card { gap: .2rem; padding: .45rem .85rem; font-size: clamp(1.2rem, min(3.4vw, 6svh), 2.25rem); }
   .display-published .winner-card .eyebrow { font-size: clamp(1.45rem, min(4.2vw, 7.6svh), 2.75rem); }
   .display-published .winner-card strong { font-size: clamp(1.8rem, min(4.7vw, 8.5svh), 3.1rem); }
-  .display-published .display-footer { margin-top: .7rem; padding-top: .4rem; }
+  .display-page:is(.display-published, .display-closed) .display-footer {
+    margin-top: .5rem;
+    padding: .25rem .6rem;
+    background: #06152d;
+    color: #fff;
+    font-size: clamp(2rem, min(4.7vw, 8.4svh), 3.5rem);
+    font-weight: 900;
+  }
 }
 @media (min-aspect-ratio: 5/4) and (min-height: 651px) and (max-height: 800px) {
   .display-published { padding-block: clamp(1rem, 3svh, 1.5rem); }
