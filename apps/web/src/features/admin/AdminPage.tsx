@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ArrowDownToLine, ArrowRight, ArrowUpRight, CalendarDays, ClipboardList, LogOut, Monitor, Plus, Shield, Trash2, Users } from 'lucide-react';
 import type { Match, Overview, Team } from '../../../../../packages/contracts/src';
 import { api, ApiError, errorMessage, request } from '../../api';
-import { matchDate, numberLabel, statusText, voteTime } from '../../format';
+import { matchDate, matchLocalInput, numberLabel, statusText, voteTime } from '../../format';
 import { Notice, TeamMark, Teams } from '../../components/match';
 import { FormPanel, LoginForm, MatchForm, TeamForm } from './forms';
 import { Predictions } from './Predictions';
@@ -161,14 +161,14 @@ export function AdminPage() {
 function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promise<void> }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  async function action(kind: string, data: Record<string, number> = {}) {
+  async function action(kind: string, data: Record<string, number | string | null> = {}) {
     await api('/admin/matches/' + match.id + '/action', request('POST', { kind, ...data }));
     await onUpdate();
   }
-  async function run(kind: string) {
+  async function run(kind: string, data?: Record<string, string | null>) {
     setError('');
     setBusy(true);
-    try { await action(kind); }
+    try { await action(kind, data); }
     catch (cause) { setError(errorMessage(cause)); }
     finally { setBusy(false); }
   }
@@ -192,7 +192,8 @@ function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promi
       {match.description && <p>{match.description}</p>}
       <div className="admin-actions">
         <a className="button" href={'/match/' + match.id} target="_blank" rel="noreferrer"><ArrowUpRight />Страница голосования</a>
-        <a className="button" href={'/display/' + match.id} target="_blank" rel="noreferrer"><Monitor />Экран арены</a>
+        <a className="button" href="/display" target="_blank" rel="noreferrer"><Monitor />Экран арены</a>
+        <a className="button" href={'/display/' + match.id} target="_blank" rel="noreferrer">Экран этого матча</a>
         <a className="button" href={'/api/matches/' + match.id + '/qr?download=1'}><ArrowDownToLine />Скачать QR</a>
         {match.status === 'PENDING' && <button className="button primary" disabled={busy} onClick={() => run('open')}>Начать голосование</button>}
         {match.status === 'OPEN' && <button className="button danger" disabled={busy} onClick={() => run('close')}>Завершить голосование</button>}
@@ -200,6 +201,22 @@ function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promi
         <button className="button danger" disabled={busy} onClick={deleteMatch}>Удалить матч</button>
         {match.status === 'CLOSED' && result?.determined && <button className="button primary" disabled={busy} onClick={() => run('publish')}>Опубликовать результаты</button>}
       </div>
+      {match.closedAt && <p>Приём завершён {matchDate(match.closedAt)} (UTC+5)</p>}
+      {(match.status === 'PENDING' || match.status === 'OPEN') && <form className="form-panel" onSubmit={(event) => {
+        event.preventDefault();
+        void run('schedule-close', { deadline: String(new FormData(event.currentTarget).get('deadline')) });
+      }}>
+        <label>Автозакрытие голосования · Нефтекамск (UTC+5)
+          <input key={match.votingDeadline ?? 'unscheduled'} name="deadline" type="datetime-local" required
+            defaultValue={match.votingDeadline ? matchLocalInput(match.votingDeadline) : undefined} />
+        </label>
+        {match.votingDeadline && <p>Запланировано на {matchDate(match.votingDeadline)} (UTC+5)</p>}
+        <div className="admin-actions">
+          <button className="button primary" disabled={busy}>{match.votingDeadline ? 'Изменить время' : 'Запланировать завершение'}</button>
+          {match.votingDeadline && <button type="button" className="button" disabled={busy}
+            onClick={() => run('schedule-close', { deadline: null })}>Отменить автозакрытие</button>}
+        </div>
+      </form>}
       {result && <div className="result-preview">
         <strong>Итоговый счёт {result.homeScore}:{result.awayScore}</strong>
         {result.determined && <p>{result.winner ? 'Победитель: участник ' + numberLabel(result.winner.number) + ' · ' + voteTime(result.winner.createdAt) : 'Никто не угадал точный счёт.'}</p>}

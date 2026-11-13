@@ -72,6 +72,10 @@ function findMatch(int $id, bool $lock = false): array {
         ?? fail(404, 'Матч не найден.');
 }
 
+function votingExpired(array $match, string $now): bool {
+    return $match['status'] === 'OPEN' && $match['votingDeadline'] !== null && $match['votingDeadline'] <= $now;
+}
+
 function teamView(array $team): array {
     $logo = $team['logo'] === '/images/toros.png' ? '/images/toros.svg' : $team['logo'];
     return ['id'=>(int)$team['id'], 'name'=>$team['name'], 'shortName'=>$team['shortName'],
@@ -86,8 +90,12 @@ function predictionView(array $prediction): array {
 function matchView(array $match, bool $private = false): array {
     $teams = array_column(rows('SELECT id,name,shortName,logo FROM Team WHERE id IN (?,?)',
         [$match['homeId'], $match['awayId']]), null, 'id');
+    $expired = $match['votingDeadline'] !== null && $match['status'] === 'OPEN'
+        && votingExpired($match, (string)sql('SELECT UTC_TIMESTAMP(3)')->fetchColumn());
     $result = [
-        'id'=>(int)$match['id'], 'status'=>$match['status'], 'tournament'=>$match['tournament'],
+        'id'=>(int)$match['id'], 'status'=>$expired ? 'CLOSED' : $match['status'], 'tournament'=>$match['tournament'],
+        'votingDeadline'=>$match['votingDeadline'] === null ? null : iso($match['votingDeadline']),
+        'closedAt'=>($closedAt = $expired ? $match['votingDeadline'] : $match['closedAt']) === null ? null : iso($closedAt),
         'startsAt'=>iso($match['startsAt']), 'description'=>$match['description'],
         'home'=>teamView($teams[$match['homeId']]), 'away'=>teamView($teams[$match['awayId']]),
         'count'=>(int)sql('SELECT COUNT(*) FROM Prediction WHERE matchId = ?', [$match['id']])->fetchColumn(),

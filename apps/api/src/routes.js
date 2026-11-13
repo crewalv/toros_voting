@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { z } from 'zod';
 import QRCode from 'qrcode';
-import { allMatches, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch, withMatchLock } from './store.js';
+import { allMatches, currentDisplay, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch, withMatchLock } from './store.js';
 import { checkPassword, hashToken, newToken, validToken } from './security.js';
 
 const api = Router();
@@ -47,9 +47,15 @@ api.get('/health', async (_req, res) => {
   res.json({ ok: true });
 });
 
+api.get('/matches/current-display', async (_req, res) => {
+  const match = await currentDisplay();
+  if (match) res.json({ match });
+  else res.status(204).end();
+});
+
 api.get('/matches/nearest', async (_req, res) => {
   const match = await db.match.findFirst({
-    where: { status: 'OPEN' }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
+    where: { status: 'OPEN', OR: [{ votingDeadline: null }, { votingDeadline: { gt: new Date() } }] }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
   }) ?? await db.match.findFirst({
     where: { status: 'PENDING', startsAt: { gte: new Date() } },
     orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], select: { id: true },
@@ -201,6 +207,7 @@ const matchAction = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('open') }), z.object({ kind: z.literal('close') }),
   z.object({ kind: z.literal('score'), ...scoreFields }), z.object({ kind: z.literal('determine') }),
   z.object({ kind: z.literal('publish') }),
+  z.object({ kind: z.literal('schedule-close'), deadline: z.string().regex(/^[1-9]\d{3}-\d{2}-\d{2}T\d{2}:\d{2}$/).nullable() }),
 ]);
 api.post('/admin/matches/:id/action', async (req, res) => {
   res.json(await transitionMatch(idFrom(req.params.id), matchAction.parse(req.body)));

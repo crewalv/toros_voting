@@ -186,17 +186,58 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 }
 .display-page .ice-stroke { margin: .6rem 0 1.1rem; height: clamp(4px, .85vw, 16px); width: 50%; transform: rotate(-2deg); }
 .display-content { width: min(100%, 66rem); align-self: center; }
-.display-with-qr { width: 100%; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 5vw; align-items: center; }
+.display-live { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); align-content: center; gap: 0 4vw; }
+.display-live .display-with-qr { display: contents; }
+.display-live :is(.display-header, h1, .ice-stroke, .teams) { grid-column: 1; }
+.display-live .display-header { grid-row: 1; }
+.display-live h1 { grid-row: 2; }
+.display-live .ice-stroke { grid-row: 3; }
+.display-live .teams { grid-row: 4; }
+.display-live .display-qr { grid-area: 1 / 2 / 5; align-self: start; }
+.display-live .display-footer { grid-column: 1 / -1; }
 .display-page .teams { gap: 2vw; }
 .display-page .team-emblem img { width: 100%; height: clamp(100px, 18vw, 320px); }
 .display-page .team-mark { font-size: clamp(1.4rem, 3.4vw, 4rem); }
 .display-qr { display: grid; place-items: center; gap: 1.2rem; text-align: center; }
-.display-qr img { width: min(100%, 43svh); height: auto; border-radius: .25rem; }
-.display-qr p { font: 900 clamp(1.1rem, 2.7vw, 3.3rem)/1.07 var(--font-display); }
-.display-footer { margin-top: 1.3rem; padding-top: .65rem; text-align: right; border-top: 2px solid #00a140; font: 700 clamp(1rem, 1.9vw, 2.25rem)/1.1 var(--font-display); }
+.display-qr img { width: min(100%, 47svh); height: auto; border-radius: .25rem; }
+.display-qr p { font: 900 clamp(1.35rem, min(3.7vw, 6.4svh), 4.7rem)/1.07 var(--font-display); }
+.display-footer { margin-top: 1.3rem; padding-top: .65rem; text-align: right; border-top: 2px solid #00a140; font: 700 clamp(1.4rem, min(3.4vw, 6svh), 4.2rem)/1.1 var(--font-display); }
 .display-page .score-grid { max-width: 36rem; margin: auto; }
 .display-page .score-tile { min-height: 5rem; }
 .display-page .team-winner { font-size: clamp(1rem, 2vw, 2rem); }
+
+.display-footer strong { font-weight: 900; }
+.display-published {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  align-content: start;
+  column-gap: 5vw;
+}
+.display-published :is(.display-header, h1, .ice-stroke, .results) { grid-column: 1; }
+.display-published .display-header { grid-row: 1; }
+.display-published h1 { grid-row: 2; }
+.display-published .ice-stroke { grid-row: 3; }
+.display-published .results { grid-row: 4; }
+.display-published .teams { grid-area: 1 / 2 / 5; align-self: start; }
+.display-published .display-footer { grid-column: 1 / -1; }
+.display-published h1 { font-size: clamp(2.5rem, min(6.4vw, 11svh), 8rem); }
+.display-published .display-content { display: contents; }
+.display-published .results { margin: 0; text-align: left; }
+.display-published .team-mark { font-size: clamp(1.7rem, min(4.5vw, 7svh), 5.4rem); }
+.display-published .team-emblem img { height: clamp(100px, min(19vw, 32svh), 350px); }
+.display-published .score-grid { max-width: 100%; }
+.display-published .score-tile { min-height: auto; padding: .06em .12em; font-size: clamp(4rem, min(10vw, 16svh), 13rem); }
+.display-published .score-colon { font-size: clamp(2.5rem, min(7vw, 12svh), 9rem); }
+.display-published .team-winner { font: 800 clamp(1.4rem, min(3.25vw, 6svh), 4rem)/1.1 var(--font-display); }
+.display-published .winner-card { gap: .4rem; font: 700 clamp(1.1rem, min(2.4vw, 4.4svh), 3.1rem)/1.15 var(--font-display); }
+.display-published .winner-card strong { font-size: clamp(1.8rem, min(4.5vw, 7.5svh), 5.4rem); }
+.display-published .winner-card .eyebrow { letter-spacing: .04em; }
+.display-published .display-footer { font-size: clamp(1rem, min(2vw, 3.5svh), 2.5rem); }
+@media (max-aspect-ratio: 5/4) {
+  .display-live, .display-published { display: flex; }
+  .display-live .display-qr { margin-top: 1rem; align-self: stretch; }
+  .display-published .display-content { display: flex; flex-direction: column; align-items: stretch; }
+}
 
 .message-page {
   min-height: 100svh;

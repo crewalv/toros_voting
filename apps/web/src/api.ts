@@ -29,8 +29,8 @@ export const request = (method: string, body?: unknown): RequestInit => ({
 
 export const errorMessage = (error: unknown) => error instanceof Error ? error.message : 'Произошла ошибка. Попробуйте ещё раз.';
 
-export function useMatch(id: number, display = false) {
-  const [data, setData] = useState<MatchResponse>();
+export function useMatch(id: number | undefined, display = false) {
+  const [data, setData] = useState<MatchResponse | null>();
   const [error, setError] = useState('');
   useEffect(() => {
     const controller = new AbortController();
@@ -43,8 +43,9 @@ export function useMatch(id: number, display = false) {
           await api('/matches/' + id + '/session', { ...options, method: 'POST' });
           registered = true;
         }
-        const next = await api<MatchResponse>('/matches/' + id + (display ? '?display=1' : ''), options);
-        setData(next);
+        const path = id === undefined ? '/matches/current-display' : '/matches/' + id + (display ? '?display=1' : '');
+        const next = await api<MatchResponse | undefined>(path, options);
+        setData(next ?? null);
         setError('');
       } catch (cause) {
         if (controller.signal.aborted) return;
