@@ -16,8 +16,8 @@ export function DisplayPage({ id }: { id?: number }) {
     <h1>{published ? 'Итоги матча' : match.status === 'CLOSED' ? 'Ожидаем итоги' : 'Угадай счёт матча!'}</h1>
     <div className="ice-stroke" aria-hidden="true" />
     <div className={'display-content' + (showQR ? ' display-with-qr' : '')}>
-      <Teams match={match} />
-      {published && <Results match={match} />}
+      {published && <Results match={match} showTeamNames />}
+      <Teams match={match} logoOnly={published} />
       {showQR && <aside className="display-qr">
         <img src={'/api/matches/' + match.id + '/qr'} alt="QR-код страницы голосования" width="640" height="640" />
         <p>Сканируй QR-код<br />и отправляй прогноз</p>

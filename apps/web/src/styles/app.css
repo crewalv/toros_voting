@@ -223,9 +223,18 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-published h1 { font-size: clamp(2.5rem, min(6.4vw, 11svh), 8rem); }
 .display-published .display-content { display: contents; }
 .display-published .results { margin: 0; text-align: left; }
-.display-published .team-mark { font-size: clamp(1.7rem, min(4.5vw, 7svh), 5.4rem); }
 .display-published .team-emblem img { height: clamp(100px, min(19vw, 32svh), 350px); }
-.display-published .score-grid { max-width: 100%; }
+.display-published .score-grid { max-width: 100%; row-gap: clamp(.25rem, 1svh, .75rem); }
+.score-team {
+  grid-row: 1;
+  align-self: end;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font: 900 clamp(1.35rem, min(4.5vw, 7svh), 5.4rem)/1.05 var(--font-display);
+}
+.score-team-home { grid-column: 1; }
+.score-team-away { grid-column: 3; }
+.display-published .score-grid > :is(.score-tile, .score-colon) { grid-row: 2; }
 .display-published .score-tile { min-height: auto; padding: .06em .12em; font-size: clamp(4rem, min(10vw, 16svh), 13rem); }
 .display-published .score-colon { font-size: clamp(2.5rem, min(7vw, 12svh), 9rem); }
 .display-published .team-winner { font: 800 clamp(1.4rem, min(3.25vw, 6svh), 4rem)/1.1 var(--font-display); }
@@ -233,6 +242,11 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-published .winner-card strong { font-size: clamp(1.8rem, min(4.5vw, 7.5svh), 5.4rem); }
 .display-published .winner-card .eyebrow { letter-spacing: .04em; }
 .display-published .display-footer { font-size: clamp(1rem, min(2vw, 3.5svh), 2.5rem); }
+@media (min-aspect-ratio: 5/4) and (max-height: 800px) {
+  .display-published { padding-block: clamp(1rem, 4svh, 2rem); }
+  .display-published .display-header { gap: .55rem; }
+  .display-published .display-header p { font-size: clamp(.85rem, 1.65vw, 1.4rem); }
+}
 @media (max-aspect-ratio: 5/4) {
   .display-live, .display-published { display: flex; }
   .display-live .display-qr { margin-top: 1rem; align-self: stretch; }
