@@ -212,6 +212,7 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   align-content: start;
   column-gap: 5vw;
+  padding-bottom: clamp(1rem, 3svh, 2rem);
 }
 .display-published :is(.display-header, h1, .ice-stroke, .results) { grid-column: 1; }
 .display-published .display-header { grid-row: 1; }
@@ -238,12 +239,16 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-published .score-tile { min-height: auto; padding: .06em .12em; font-size: clamp(4rem, min(10vw, 16svh), 13rem); }
 .display-published .score-colon { font-size: clamp(2.5rem, min(7vw, 12svh), 9rem); }
 .display-published .team-winner { font: 800 clamp(1.4rem, min(3.25vw, 6svh), 4rem)/1.1 var(--font-display); }
-.display-published .winner-card { gap: .4rem; font: 700 clamp(1.1rem, min(2.4vw, 4.4svh), 3.1rem)/1.15 var(--font-display); }
+.display-published .winner-card { gap: .4rem; font: 700 clamp(1.2rem, min(2.65vw, 4.9svh), 3.4rem)/1.1 var(--font-display); }
 .display-published .winner-card strong { font-size: clamp(1.8rem, min(4.5vw, 7.5svh), 5.4rem); }
-.display-published .winner-card .eyebrow { letter-spacing: .04em; }
+.display-published .winner-card .eyebrow {
+  font-size: clamp(1.45rem, min(3.75vw, 6.7svh), 4.7rem);
+  line-height: 1;
+  letter-spacing: 0;
+}
 .display-published .display-footer { font-size: clamp(1rem, min(2vw, 3.5svh), 2.5rem); }
 @media (min-aspect-ratio: 5/4) and (max-height: 800px) {
-  .display-published { padding-block: clamp(1rem, 4svh, 2rem); }
+  .display-published { padding-block: clamp(1rem, 3svh, 1.5rem); }
   .display-published .display-header { gap: .55rem; }
   .display-published .display-header p { font-size: clamp(.85rem, 1.65vw, 1.4rem); }
 }
