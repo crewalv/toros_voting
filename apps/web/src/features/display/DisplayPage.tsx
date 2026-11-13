@@ -8,7 +8,7 @@ export function DisplayPage({ id }: { id?: number }) {
   const { match } = data;
   const published = match.status === 'PUBLISHED';
   const showQR = match.status === 'PENDING' || match.status === 'OPEN';
-  return <main className={'display-page' + (published ? ' display-published' : showQR ? ' display-live' : '')}>
+  return <main className={'display-page' + (published ? ' display-published' : showQR ? ' display-live' : ' display-closed')}>
     <header className="display-header">
       <p className="match-ribbon">{match.tournament} · {matchDate(match.startsAt)}</p>
       <p className={'status-ribbon status-' + match.status.toLowerCase()}>{statusText[match.status]}</p>

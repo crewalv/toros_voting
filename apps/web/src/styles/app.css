@@ -207,9 +207,13 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-page .team-winner { font-size: clamp(1rem, 2vw, 2rem); }
 
 .display-footer strong { font-weight: 900; }
+.display-closed { justify-content: flex-start; }
+.display-closed .display-content { margin-block: auto; }
+.display-closed .display-footer { font-size: clamp(1.6rem, min(4.8vw, 8svh), 5rem); }
 .display-published {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(min-content, 1fr);
   align-content: start;
   column-gap: 5vw;
   padding-bottom: clamp(1rem, 3svh, 2rem);
@@ -220,7 +224,7 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
 .display-published .ice-stroke { grid-row: 3; }
 .display-published .results { grid-row: 4; }
 .display-published .teams { grid-area: 1 / 2 / 5; align-self: start; }
-.display-published .display-footer { grid-column: 1 / -1; }
+.display-published .display-footer { grid-column: 1 / -1; align-self: end; }
 .display-published h1 { font-size: clamp(2.5rem, min(6.4vw, 11svh), 8rem); }
 .display-published .display-content { display: contents; }
 .display-published .results { margin: 0; text-align: left; }
@@ -246,16 +250,32 @@ input.score-tile::placeholder { color: #36485b; opacity: .78; }
   line-height: 1;
   letter-spacing: 0;
 }
-.display-published .display-footer { font-size: clamp(1rem, min(2vw, 3.5svh), 2.5rem); }
-@media (min-aspect-ratio: 5/4) and (max-height: 800px) {
+.display-published .display-footer { font-size: clamp(1.2rem, min(3.4vw, 6svh), 3.75rem); }
+@media (min-aspect-ratio: 5/4) and (max-height: 650px) {
+  .display-page:is(.display-published, .display-closed) { padding: 1rem 3vw; }
+  .display-published { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); column-gap: 3vw; }
+  .display-published .display-header { flex-wrap: nowrap; }
+  .display-published .display-header p { font-size: clamp(.8rem, 1.55vw, 1.2rem); }
+  .display-published h1 { font-size: clamp(2.3rem, 10svh, 3.8rem); }
+  .display-published .ice-stroke { height: 5px; margin: .25rem 0 .4rem; }
+  .display-published .score-tile { font-size: clamp(4rem, min(11vw, 19svh), 7rem); }
+  .display-published .team-winner { margin: .35rem 0; }
+  .display-published .winner-card { gap: .25rem; padding: .5rem .85rem; font-size: clamp(1.2rem, min(3vw, 5.5svh), 2rem); }
+  .display-published .winner-card .eyebrow { font-size: clamp(1.45rem, min(4.2vw, 7.6svh), 2.75rem); }
+  .display-published .winner-card strong { font-size: clamp(1.8rem, min(4.7vw, 8.5svh), 3.1rem); }
+  .display-published .display-footer { margin-top: .7rem; padding-top: .4rem; }
+}
+@media (min-aspect-ratio: 5/4) and (min-height: 651px) and (max-height: 800px) {
   .display-published { padding-block: clamp(1rem, 3svh, 1.5rem); }
   .display-published .display-header { gap: .55rem; }
   .display-published .display-header p { font-size: clamp(.85rem, 1.65vw, 1.4rem); }
+  .display-published .display-footer { margin-top: .8rem; font-size: clamp(1.2rem, 4.5svh, 2.25rem); }
 }
 @media (max-aspect-ratio: 5/4) {
   .display-live, .display-published { display: flex; }
   .display-live .display-qr { margin-top: 1rem; align-self: stretch; }
   .display-published .display-content { display: flex; flex-direction: column; align-items: stretch; }
+  .display-published .display-footer { align-self: stretch; }
 }
 
 .message-page {
