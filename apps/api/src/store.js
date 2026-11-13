@@ -24,7 +24,7 @@ const teams = { home: { select: teamFields }, away: { select: teamFields } };
 const matchInclude = { ...teams, _count: { select: { predictions: true } }, winner: true };
 export const teamView = ({ id, name, shortName, logo }) => ({
   id, name, shortName,
-  logo: name === 'Торос' || logo === '/images/toros.png' ? '/images/toros.svg' : logo ?? '/api/teams/' + id + '/logo',
+  logo: logo === '/images/toros.png' ? '/images/toros.svg' : logo ?? '/api/teams/' + id + '/logo',
 });
 const predictionView = ({ homeScore, awayScore, createdAt }) => ({ homeScore, awayScore, createdAt });
 export function matchView(match, privateView = false) {

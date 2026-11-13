@@ -73,7 +73,7 @@ function findMatch(int $id, bool $lock = false): array {
 }
 
 function teamView(array $team): array {
-    $logo = $team['name'] === 'Торос' || $team['logo'] === '/images/toros.png' ? '/images/toros.svg' : $team['logo'];
+    $logo = $team['logo'] === '/images/toros.png' ? '/images/toros.svg' : $team['logo'];
     return ['id'=>(int)$team['id'], 'name'=>$team['name'], 'shortName'=>$team['shortName'],
         'logo'=>$logo ?? '/api/teams/'.$team['id'].'/logo'];
 }
