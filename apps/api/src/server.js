@@ -22,7 +22,7 @@ app.use('/api', api, (_req, res) => res.status(404).json({ error: 'Адрес н
 const dist = resolve('dist');
 if (existsSync(resolve(dist, 'index.html'))) {
   app.use(express.static(dist, { index: false }));
-  app.get(['/', '/admin', '/match/:id', '/display/:id', '/preview'], (_req, res) => res.sendFile(resolve(dist, 'index.html')));
+  app.get(['/', '/admin', '/match/:id', '/display', '/display/:id', '/preview'], (_req, res) => res.sendFile(resolve(dist, 'index.html')));
 }
 app.use((_req, res) => res.status(404).send('Страница не найдена.'));
 app.use((error, _req, res, next) => {

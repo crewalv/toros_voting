@@ -41,6 +41,7 @@ function App() {
   const path = location.pathname.replace(/\/$/, '') || '/';
   const route = /^\/(match|display)\/([1-9]\d*)$/.exec(path);
   if (route) return route[1] === 'match' ? <VotingPage id={Number(route[2])} /> : <DisplayPage id={Number(route[2])} />;
+  if (path === '/display') return <DisplayPage />;
   if (path === '/admin') return <AdminPage />;
   if (path === '/preview') return <PreviewPage />;
   return <HomeMatch />;

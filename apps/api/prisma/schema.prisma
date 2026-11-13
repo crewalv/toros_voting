@@ -35,6 +35,7 @@ model Match {
   description        String?     @db.VarChar(600)
   status             MatchStatus @default(PENDING)
   openedAt           DateTime?
+  votingDeadline     DateTime?
   closedAt           DateTime?
   publishedAt        DateTime?
   homeScore          Int?

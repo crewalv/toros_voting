@@ -24,6 +24,8 @@ export interface Match {
   id: number;
   status: MatchStatus;
   startsAt: string;
+  votingDeadline?: string | null;
+  closedAt?: string | null;
   tournament: string;
   description?: string;
   home: Team;

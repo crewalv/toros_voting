@@ -24,13 +24,39 @@ const teams = { home: { select: teamFields }, away: { select: teamFields } };
 const matchInclude = { ...teams, _count: { select: { predictions: true } }, winner: true };
 export const teamView = ({ id, name, shortName, logo }) => ({
   id, name, shortName,
-  logo: name === 'Торос' || logo === '/images/toros.png' ? '/images/toros.svg' : logo ?? '/api/teams/' + id + '/logo',
+  logo: logo === '/images/toros.png' ? '/images/toros.svg' : logo ?? '/api/teams/' + id + '/logo',
 });
 const predictionView = ({ homeScore, awayScore, createdAt }) => ({ homeScore, awayScore, createdAt });
+const votingExpired = (match, now) =>
+  match.status === 'OPEN' && match.votingDeadline !== null && match.votingDeadline <= now;
+
+export async function currentMatchId() {
+  const [current] = await db.$queryRaw`SELECT id FROM \`Match\`
+    ORDER BY
+      CASE
+        WHEN status='OPEN' AND (votingDeadline IS NULL OR votingDeadline > UTC_TIMESTAMP(3)) THEN 0
+        WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN 2
+        ELSE 1
+      END,
+      CASE WHEN status='OPEN' AND (votingDeadline IS NULL OR votingDeadline > UTC_TIMESTAMP(3))
+        THEN openedAt END DESC,
+      CASE WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN startsAt END ASC,
+      startsAt DESC, id DESC LIMIT 1`;
+  return current?.id ?? null;
+}
+
+export async function currentDisplay() {
+  const id = await currentMatchId();
+  const match = id !== null && await db.match.findUnique({ where: { id }, include: matchInclude });
+  return match ? matchView(match) : null;
+}
+
 export function matchView(match, privateView = false) {
+  const expired = votingExpired(match, new Date());
   const showResult = privateView || match.status === 'PUBLISHED';
   return {
-    id: match.id, status: match.status, tournament: match.tournament, startsAt: match.startsAt,
+    id: match.id, status: expired ? 'CLOSED' : match.status, tournament: match.tournament, startsAt: match.startsAt,
+    votingDeadline: match.votingDeadline, closedAt: expired ? match.votingDeadline : match.closedAt,
     description: match.description, home: teamView(match.home), away: teamView(match.away),
     count: match._count.predictions,
     ...(showResult && match.homeScore !== null ? {
@@ -58,7 +84,7 @@ export async function allMatches() {
 // One row lock is shared by prediction writes and all organizer transitions.
 export function withMatchLock(id, action) {
   return db.$transaction(async (tx) => {
-    const [match] = await tx.$queryRaw`SELECT id, status, homeScore, awayScore, determinedAt FROM \`Match\` WHERE id = ${id} FOR UPDATE`;
+    const [match] = await tx.$queryRaw`SELECT id, status, homeScore, awayScore, determinedAt, votingDeadline FROM \`Match\` WHERE id = ${id} FOR UPDATE`;
     if (!match) throw new HttpError(404, 'Матч не найден.');
     return action(tx, match);
   });
@@ -69,8 +95,9 @@ export async function recordPrediction(matchId, participantId, scores) {
     const where = { matchId_participantId: { matchId, participantId } };
     const existing = await tx.prediction.findUnique({ where });
     if (existing) return predictionView(existing);
-    if (match.status !== 'OPEN') throw new HttpError(409, 'Приём прогнозов сейчас закрыт.');
-    return predictionView(await tx.prediction.create({ data: { matchId, participantId, ...scores } }));
+    const [{ now }] = await tx.$queryRaw`SELECT UTC_TIMESTAMP(3) AS now`;
+    if (match.status !== 'OPEN' || votingExpired(match, now)) throw new HttpError(409, 'Приём прогнозов сейчас закрыт.');
+    return predictionView(await tx.prediction.create({ data: { matchId, participantId, ...scores, createdAt: now } }));
   });
 }
 
@@ -78,9 +105,28 @@ export async function transitionMatch(id, action) {
   return withMatchLock(id, async (tx, match) => {
     const where = { id };
     const conflict = () => { throw new HttpError(409, 'Это действие недоступно на текущем этапе.'); };
+    const [{ now }] = await tx.$queryRaw`SELECT UTC_TIMESTAMP(3) AS now`;
+    if (votingExpired(match, now)) {
+      await tx.match.update({ where, data: { status: 'CLOSED', closedAt: match.votingDeadline } });
+      match.status = 'CLOSED';
+    }
     switch (action.kind) {
+      case 'schedule-close': {
+        if (!['PENDING', 'OPEN'].includes(match.status)) conflict();
+        const deadline = action.deadline === null ? null : new Date(action.deadline + ':00+05:00');
+        if (deadline && (Number.isNaN(deadline.getTime()) ||
+            new Date(deadline.getTime() + 5 * 3600000).toISOString().slice(0, 16) !== action.deadline)) {
+          throw new HttpError(400, 'Проверьте дату и время закрытия.');
+        }
+        if (deadline && deadline <= now) throw new HttpError(400, 'Выберите время в будущем.');
+        await tx.match.update({ where, data: { votingDeadline: deadline } });
+        break;
+      }
       case 'open':
         if (match.status !== 'PENDING') conflict();
+        if (match.votingDeadline !== null && match.votingDeadline <= now) {
+          throw new HttpError(409, 'Измените или отмените прошедшее время автозакрытия.');
+        }
         await tx.match.update({ where, data: { status: 'OPEN', openedAt: new Date() } });
         break;
       case 'close':
@@ -94,20 +140,20 @@ export async function transitionMatch(id, action) {
           determinedAt: null, winnerPredictionId: null,
         } });
         break;
-      case 'determine': {
+      case 'determine':
+      case 'publish': {
         if (match.status !== 'CLOSED' || match.homeScore === null) conflict();
         const winner = await tx.prediction.findFirst({
           where: { matchId: id, homeScore: match.homeScore, awayScore: match.awayScore },
           orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
           select: { id: true },
         });
-        await tx.match.update({ where, data: { winnerPredictionId: winner?.id ?? null, determinedAt: new Date() } });
+        await tx.match.update({ where, data: {
+          winnerPredictionId: winner?.id ?? null, determinedAt: now,
+          ...(action.kind === 'publish' ? { status: 'PUBLISHED', publishedAt: now } : {}),
+        } });
         break;
       }
-      case 'publish':
-        if (match.status !== 'CLOSED' || !match.determinedAt) conflict();
-        await tx.match.update({ where, data: { status: 'PUBLISHED', publishedAt: new Date() } });
-        break;
     }
     return matchView(await findMatch(id, tx), true);
   });

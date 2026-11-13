@@ -173,20 +173,44 @@ function saveTeam(?int $id): never {
 function transition(int $id, array $data): array {
     return transaction(function () use ($id,$data) {
         $match = findMatch($id,true);
+        $now = (string)sql('SELECT UTC_TIMESTAMP(3)')->fetchColumn();
         $status = $match['status'];
+        if (votingExpired($match, $now)) {
+            sql("UPDATE `Match` SET status='CLOSED',closedAt=votingDeadline WHERE id=?", [$id]);
+            $status = 'CLOSED';
+        }
         $kind = $data['kind'] ?? '';
-        if ($kind === 'open' && $status === 'PENDING') {
+        if ($kind === 'schedule-close' && in_array($status, ['PENDING','OPEN'], true)) {
+            $value = $data['deadline'] ?? null;
+            if (!array_key_exists('deadline', $data)) fail(400, 'Укажите дату и время закрытия.');
+            $deadline = null;
+            if ($value !== null) {
+                $local = is_string($value) && preg_match('/^[1-9]\d{3}-\d{2}-\d{2}T\d{2}:\d{2}$/D', $value)
+                    ? DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', $value, new DateTimeZone('Asia/Yekaterinburg'))
+                    : false;
+                if (!$local || $local->format('Y-m-d\TH:i') !== $value) fail(400, 'Проверьте дату и время закрытия.');
+                $deadline = $local->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s.v');
+                if ($deadline <= $now) fail(400, 'Выберите время в будущем.');
+            }
+            sql('UPDATE `Match` SET votingDeadline=? WHERE id=?', [$deadline,$id]);
+        } elseif ($kind === 'open' && $status === 'PENDING') {
+            if ($match['votingDeadline'] !== null && $match['votingDeadline'] <= $now) {
+                fail(409, 'Измените или отмените прошедшее время автозакрытия.');
+            }
             sql("UPDATE `Match` SET status='OPEN',openedAt=UTC_TIMESTAMP(3) WHERE id=?", [$id]);
         } elseif ($kind === 'close' && $status === 'OPEN') {
             sql("UPDATE `Match` SET status='CLOSED',closedAt=UTC_TIMESTAMP(3) WHERE id=?", [$id]);
         } elseif ($kind === 'score' && $status === 'CLOSED') {
             sql('UPDATE `Match` SET homeScore=?,awayScore=?,determinedAt=NULL,winnerPredictionId=NULL WHERE id=?', [...scores($data),$id]);
-        } elseif ($kind === 'determine' && $status === 'CLOSED' && $match['homeScore'] !== null) {
+        } elseif (in_array($kind, ['determine', 'publish'], true) && $status === 'CLOSED' && $match['homeScore'] !== null) {
             $winner = row('SELECT id FROM Prediction WHERE matchId=? AND homeScore=? AND awayScore=? ORDER BY createdAt,id LIMIT 1',
                 [$id,$match['homeScore'],$match['awayScore']]);
-            sql('UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3) WHERE id=?', [$winner['id'] ?? null,$id]);
-        } elseif ($kind === 'publish' && $status === 'CLOSED' && $match['determinedAt']) {
-            sql("UPDATE `Match` SET status='PUBLISHED',publishedAt=UTC_TIMESTAMP(3) WHERE id=?", [$id]);
+            if ($kind === 'publish') {
+                sql("UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3),
+                    status='PUBLISHED',publishedAt=UTC_TIMESTAMP(3) WHERE id=?", [$winner['id'] ?? null,$id]);
+            } else {
+                sql('UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3) WHERE id=?', [$winner['id'] ?? null,$id]);
+            }
         } else {
             fail(409, 'Это действие недоступно на текущем этапе.');
         }
@@ -233,11 +257,20 @@ function route(string $method, string $path): never {
         db()->query('SELECT 1');
         respond(['ok'=>true]);
     }
-    if ($method === 'GET' && $path === '/matches/nearest') {
-        $match = row("SELECT id FROM `Match` WHERE status='OPEN' ORDER BY startsAt DESC, id DESC LIMIT 1")
-            ?? row("SELECT id FROM `Match` WHERE status='PENDING' AND startsAt >= UTC_TIMESTAMP(3) ORDER BY startsAt ASC, id ASC LIMIT 1")
-            ?? row("SELECT id FROM `Match` WHERE status='PENDING' ORDER BY startsAt DESC, id DESC LIMIT 1");
-        respond(['id'=>$match ? (int)$match['id'] : null]);
+    if ($method === 'GET' && in_array($path, ['/matches/current-display', '/matches/nearest'], true)) {
+        $match = row("SELECT * FROM `Match`
+            ORDER BY
+                CASE
+                    WHEN status='OPEN' AND (votingDeadline IS NULL OR votingDeadline > UTC_TIMESTAMP(3)) THEN 0
+                    WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN 2
+                    ELSE 1
+                END,
+                CASE WHEN status='OPEN' AND (votingDeadline IS NULL OR votingDeadline > UTC_TIMESTAMP(3))
+                    THEN openedAt END DESC,
+                CASE WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN startsAt END ASC,
+                startsAt DESC, id DESC LIMIT 1");
+        if ($path === '/matches/nearest') respond(['id'=>$match ? (int)$match['id'] : null]);
+        respond($match ? ['match'=>matchView($match)] : null, $match ? 200 : 204);
     }
     if ($method === 'GET' && preg_match('~^/teams/([1-9][0-9]{0,9})/logo$~D',$path,$m)) {
         $team = row('SELECT logoType,logoBytes FROM Team WHERE id=?', [(int)$m[1]]);
@@ -279,8 +312,10 @@ function route(string $method, string $path): never {
             $match = findMatch($id,true);
             $existing = row('SELECT * FROM Prediction WHERE matchId=? AND participantId=?',[$id,$number]);
             if ($existing) return $existing;
-            if ($match['status'] !== 'OPEN') fail(409, 'Приём прогнозов сейчас закрыт.');
-            sql('INSERT INTO Prediction (matchId,participantId,homeScore,awayScore) VALUES (?,?,?,?)',[$id,$number,...$score]);
+            $now = (string)sql('SELECT UTC_TIMESTAMP(3)')->fetchColumn();
+            if ($match['status'] !== 'OPEN' || votingExpired($match, $now)) fail(409, 'Приём прогнозов сейчас закрыт.');
+            sql('INSERT INTO Prediction (matchId,participantId,homeScore,awayScore,createdAt) VALUES (?,?,?,?,?)',
+                [$id,$number,...$score,$now]);
             return row('SELECT * FROM Prediction WHERE id=?',[(int)db()->lastInsertId()]);
         });
         respond(['prediction'=>predictionView($prediction)]);

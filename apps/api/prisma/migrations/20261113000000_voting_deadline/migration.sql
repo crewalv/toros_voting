@@ -1,0 +1,1 @@
+ALTER TABLE `Match` ADD COLUMN `votingDeadline` DATETIME(3) NULL;
