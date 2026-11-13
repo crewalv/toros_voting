@@ -30,7 +30,7 @@ const predictionView = ({ homeScore, awayScore, createdAt }) => ({ homeScore, aw
 const votingExpired = (match, now) =>
   match.status === 'OPEN' && match.votingDeadline !== null && match.votingDeadline <= now;
 
-export async function currentDisplay() {
+export async function currentMatchId() {
   const [current] = await db.$queryRaw`SELECT id FROM \`Match\`
     ORDER BY
       CASE
@@ -42,7 +42,12 @@ export async function currentDisplay() {
         THEN openedAt END DESC,
       CASE WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN startsAt END ASC,
       startsAt DESC, id DESC LIMIT 1`;
-  const match = current && await db.match.findUnique({ where: { id: current.id }, include: matchInclude });
+  return current?.id ?? null;
+}
+
+export async function currentDisplay() {
+  const id = await currentMatchId();
+  const match = id !== null && await db.match.findUnique({ where: { id }, include: matchInclude });
   return match ? matchView(match) : null;
 }
 
@@ -135,20 +140,20 @@ export async function transitionMatch(id, action) {
           determinedAt: null, winnerPredictionId: null,
         } });
         break;
-      case 'determine': {
+      case 'determine':
+      case 'publish': {
         if (match.status !== 'CLOSED' || match.homeScore === null) conflict();
         const winner = await tx.prediction.findFirst({
           where: { matchId: id, homeScore: match.homeScore, awayScore: match.awayScore },
           orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
           select: { id: true },
         });
-        await tx.match.update({ where, data: { winnerPredictionId: winner?.id ?? null, determinedAt: new Date() } });
+        await tx.match.update({ where, data: {
+          winnerPredictionId: winner?.id ?? null, determinedAt: now,
+          ...(action.kind === 'publish' ? { status: 'PUBLISHED', publishedAt: now } : {}),
+        } });
         break;
       }
-      case 'publish':
-        if (match.status !== 'CLOSED' || !match.determinedAt) conflict();
-        await tx.match.update({ where, data: { status: 'PUBLISHED', publishedAt: new Date() } });
-        break;
     }
     return matchView(await findMatch(id, tx), true);
   });

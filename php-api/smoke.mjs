@@ -64,11 +64,16 @@ try {
   assert.equal(closed.status, 'CLOSED');
   assert.equal(new Date(closed.closedAt).getTime(), deadline);
   assert.equal(closed.count, 1);
+  const nearest = async () => (await (await call('/matches/nearest')).json()).id;
+  assert.equal(await nearest(), id);
+  const closedVoter = await (await call(match, { cookie: voter })).json();
+  assert.deepEqual(closedVoter.prediction, first);
+  await action('publish', undefined, 409);
   await action('score', scores);
-  await action('determine');
   await action('publish');
   const published = await (await call(match)).json();
   assert.equal(published.match.status, 'PUBLISHED');
+  assert.equal(await nearest(), id);
   assert.equal(published.match.result.winner.homeScore, 3);
   assert.equal((await current()).status, 'PUBLISHED');
   ({ id: nextId } = await (await call('/admin/matches', { method: 'POST', cookie: admin, status: 201,

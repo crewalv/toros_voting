@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import multer from 'multer';
 import { z } from 'zod';
 import QRCode from 'qrcode';
-import { allMatches, currentDisplay, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch, withMatchLock } from './store.js';
+import { allMatches, currentDisplay, currentMatchId, db, findMatch, HttpError, idFrom, matchView, recordPrediction, teamFields, teamView, transitionMatch, withMatchLock } from './store.js';
 import { checkPassword, hashToken, newToken, validToken } from './security.js';
 
 const api = Router();
@@ -54,15 +54,7 @@ api.get('/matches/current-display', async (_req, res) => {
 });
 
 api.get('/matches/nearest', async (_req, res) => {
-  const match = await db.match.findFirst({
-    where: { status: 'OPEN', OR: [{ votingDeadline: null }, { votingDeadline: { gt: new Date() } }] }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
-  }) ?? await db.match.findFirst({
-    where: { status: 'PENDING', startsAt: { gte: new Date() } },
-    orderBy: [{ startsAt: 'asc' }, { id: 'asc' }], select: { id: true },
-  }) ?? await db.match.findFirst({
-    where: { status: 'PENDING' }, orderBy: [{ startsAt: 'desc' }, { id: 'desc' }], select: { id: true },
-  });
-  res.json({ id: match?.id ?? null });
+  res.json({ id: await currentMatchId() });
 });
 
 api.post('/matches/:id/session', limit(arenaLimit('SESSION_REQUESTS_PER_MINUTE', 2000), 60_000), async (req, res) => {

@@ -77,10 +77,11 @@ function VotingPoster({ data, send, connectionError, preview = false }: {
         <div className="ice-stroke" aria-hidden="true" />
         <Teams match={match} />
         {connectionError && <Notice alert>{connectionError}</Notice>}
-        {published ? <Results match={match} /> : prediction ? (
+        {published && <Results match={match} />}
+        {prediction ? (
           <section className="prediction-summary" aria-live="polite">
-            <Score home={<span className="score-tile">{prediction.homeScore}</span>} away={<span className="score-tile">{prediction.awayScore}</span>} />
-            <Notice>Ваш прогноз {prediction.homeScore}:{prediction.awayScore} принят! Ожидайте результатов.</Notice>
+            {!published && <Score home={<span className="score-tile">{prediction.homeScore}</span>} away={<span className="score-tile">{prediction.awayScore}</span>} />}
+            <Notice>Ваш прогноз {prediction.homeScore}:{prediction.awayScore} принят!{!published && ' Ожидайте результатов.'}</Notice>
           </section>
         ) : open ? (
           <form className="vote-form" onSubmit={vote}>
@@ -88,7 +89,7 @@ function VotingPoster({ data, send, connectionError, preview = false }: {
             {formError && <Notice alert>{formError}</Notice>}
             <button className="vote-button" disabled={busy || !number}>{busy ? 'Отправляем…' : 'Проголосовать'}</button>
           </form>
-        ) : <Notice>{match.status === 'PENDING' ? 'Голосование скоро начнётся. Страница обновится автоматически.' : 'Ожидайте объявления результатов.'}</Notice>}
+        ) : !published && <Notice>{match.status === 'PENDING' ? 'Голосование скоро начнётся. Страница обновится автоматически.' : 'Ожидайте объявления результатов.'}</Notice>}
         <footer className="poster-footer">
           {number && <strong>Участник {numberLabel(number)}</strong>}
           <span>С учётом овертайма<br />и буллитов</span>

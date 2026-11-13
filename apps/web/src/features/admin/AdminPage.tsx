@@ -197,9 +197,8 @@ function MatchManager({ match, onUpdate }: { match: Match; onUpdate: () => Promi
         <a className="button" href={'/api/matches/' + match.id + '/qr?download=1'}><ArrowDownToLine />Скачать QR</a>
         {match.status === 'PENDING' && <button className="button primary" disabled={busy} onClick={() => run('open')}>Начать голосование</button>}
         {match.status === 'OPEN' && <button className="button danger" disabled={busy} onClick={() => run('close')}>Завершить голосование</button>}
-        {match.status === 'CLOSED' && result && !result.determined && <button className="button primary" disabled={busy} onClick={() => run('determine')}>Определить победителя</button>}
         <button className="button danger" disabled={busy} onClick={deleteMatch}>Удалить матч</button>
-        {match.status === 'CLOSED' && result?.determined && <button className="button primary" disabled={busy} onClick={() => run('publish')}>Опубликовать результаты</button>}
+        {match.status === 'CLOSED' && result && <button className="button primary" disabled={busy} onClick={() => run('publish')}>Опубликовать результаты</button>}
       </div>
       {match.closedAt && <p>Приём завершён {matchDate(match.closedAt)} (UTC+5)</p>}
       {(match.status === 'PENDING' || match.status === 'OPEN') && <form className="form-panel" onSubmit={(event) => {

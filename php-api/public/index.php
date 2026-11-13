@@ -202,12 +202,15 @@ function transition(int $id, array $data): array {
             sql("UPDATE `Match` SET status='CLOSED',closedAt=UTC_TIMESTAMP(3) WHERE id=?", [$id]);
         } elseif ($kind === 'score' && $status === 'CLOSED') {
             sql('UPDATE `Match` SET homeScore=?,awayScore=?,determinedAt=NULL,winnerPredictionId=NULL WHERE id=?', [...scores($data),$id]);
-        } elseif ($kind === 'determine' && $status === 'CLOSED' && $match['homeScore'] !== null) {
+        } elseif (in_array($kind, ['determine', 'publish'], true) && $status === 'CLOSED' && $match['homeScore'] !== null) {
             $winner = row('SELECT id FROM Prediction WHERE matchId=? AND homeScore=? AND awayScore=? ORDER BY createdAt,id LIMIT 1',
                 [$id,$match['homeScore'],$match['awayScore']]);
-            sql('UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3) WHERE id=?', [$winner['id'] ?? null,$id]);
-        } elseif ($kind === 'publish' && $status === 'CLOSED' && $match['determinedAt']) {
-            sql("UPDATE `Match` SET status='PUBLISHED',publishedAt=UTC_TIMESTAMP(3) WHERE id=?", [$id]);
+            if ($kind === 'publish') {
+                sql("UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3),
+                    status='PUBLISHED',publishedAt=UTC_TIMESTAMP(3) WHERE id=?", [$winner['id'] ?? null,$id]);
+            } else {
+                sql('UPDATE `Match` SET winnerPredictionId=?,determinedAt=UTC_TIMESTAMP(3) WHERE id=?', [$winner['id'] ?? null,$id]);
+            }
         } else {
             fail(409, 'Это действие недоступно на текущем этапе.');
         }
@@ -254,7 +257,7 @@ function route(string $method, string $path): never {
         db()->query('SELECT 1');
         respond(['ok'=>true]);
     }
-    if ($method === 'GET' && $path === '/matches/current-display') {
+    if ($method === 'GET' && in_array($path, ['/matches/current-display', '/matches/nearest'], true)) {
         $match = row("SELECT * FROM `Match`
             ORDER BY
                 CASE
@@ -266,13 +269,8 @@ function route(string $method, string $path): never {
                     THEN openedAt END DESC,
                 CASE WHEN status='PENDING' AND startsAt > UTC_TIMESTAMP(3) THEN startsAt END ASC,
                 startsAt DESC, id DESC LIMIT 1");
+        if ($path === '/matches/nearest') respond(['id'=>$match ? (int)$match['id'] : null]);
         respond($match ? ['match'=>matchView($match)] : null, $match ? 200 : 204);
-    }
-    if ($method === 'GET' && $path === '/matches/nearest') {
-        $match = row("SELECT id FROM `Match` WHERE status='OPEN' AND (votingDeadline IS NULL OR votingDeadline > UTC_TIMESTAMP(3)) ORDER BY startsAt DESC, id DESC LIMIT 1")
-            ?? row("SELECT id FROM `Match` WHERE status='PENDING' AND startsAt >= UTC_TIMESTAMP(3) ORDER BY startsAt ASC, id ASC LIMIT 1")
-            ?? row("SELECT id FROM `Match` WHERE status='PENDING' ORDER BY startsAt DESC, id DESC LIMIT 1");
-        respond(['id'=>$match ? (int)$match['id'] : null]);
     }
     if ($method === 'GET' && preg_match('~^/teams/([1-9][0-9]{0,9})/logo$~D',$path,$m)) {
         $team = row('SELECT logoType,logoBytes FROM Team WHERE id=?', [(int)$m[1]]);
