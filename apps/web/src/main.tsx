@@ -39,7 +39,12 @@ function HomeMatch() {
 }
 
 function App() {
-  const path = location.pathname.replace(/\/$/, '') || '/';
+  const [path, setPath] = useState(() => location.pathname.replace(/\/$/, '') || '/');
+  useEffect(() => {
+    const update = () => setPath(location.pathname.replace(/\/$/, '') || '/');
+    addEventListener('popstate', update);
+    return () => removeEventListener('popstate', update);
+  }, []);
   if (path === '/lottery') return <LotteryPage />;
   if (path === '/admin2') return <LotteryPage admin />;
   const route = /^\/(match|display)\/([1-9]\d*)$/.exec(path);

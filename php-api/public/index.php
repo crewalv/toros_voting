@@ -2,7 +2,6 @@
 declare(strict_types=1);
 
 require dirname(__DIR__).'/bootstrap.php';
-require dirname(__DIR__).'/lottery.php';
 
 function respond(mixed $value, int $status = 200): never {
     http_response_code($status);
@@ -14,7 +13,7 @@ function respond(mixed $value, int $status = 200): never {
 }
 
 function body(): array {
-    $maximum = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) === '/api/admin/lottery/import' ? 1048577 : 16385;
+    $maximum = 16385;
     $raw = file_get_contents('php://input', false, null, 0, $maximum);
     if (strlen($raw) >= $maximum) fail(413, 'Слишком большой список.');
     $data = json_decode($raw, true);
@@ -99,7 +98,7 @@ function admin(string $method, string $path): never {
     $account = $hash ? row('SELECT a.login FROM AdminSession s JOIN Admin a ON a.id=s.adminId
         WHERE s.tokenHash=? AND s.expiresAt>UTC_TIMESTAMP(3)', [$hash]) : null;
     if (!$account) fail(401, 'Войдите в панель организатора.');
-    if (preg_match('~^/admin/lottery(?:/(?:import|draw))?$~D', $path)) lotteryAdmin($method, $path);
+    if ($method === 'GET' && $path === '/admin/lottery') respond(['login'=>$account['login']]);
 
     if ($method === 'POST' && $path === '/admin/logout') {
         sql('DELETE FROM AdminSession WHERE tokenHash=?', [$hash]);
@@ -257,7 +256,6 @@ function predictions(int $id, bool $csv): never {
 }
 
 function route(string $method, string $path): never {
-    if ($method === 'GET' && $path === '/lottery') respond(lotteryView(lotteryState()));
     if (str_starts_with($path, '/admin/')) admin($method,$path);
     if ($method === 'GET' && $path === '/health') {
         db()->query('SELECT 1');
