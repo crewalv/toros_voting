@@ -16,7 +16,7 @@ function lotteryView(array $state, bool $private = false): array {
     $running = $state['revealAt'] !== null && $state['revealAt'] > $state['serverNow'];
     $latest = count($winners) ? $winners[count($winners)-1] : null;
     return [
-        'total'=>count($tickets), 'remaining'=>count($tickets)-count($winners),
+        'total'=>count($tickets), 'remaining'=>count($tickets) ? count($tickets)-(count($winners) % count($tickets)) : 0,
         'running'=>$running, 'drawId'=>$state['drawId'],
         'remainingMs'=>$running ? max(0, (int)round(((float)(new DateTimeImmutable($state['revealAt']))->format('U.u')-(float)(new DateTimeImmutable($state['serverNow']))->format('U.u'))*1000)) : 0,
         'winner'=>$running ? null : $latest,
@@ -63,11 +63,16 @@ function lotteryAdmin(string $method, string $path): never {
             foreach ($winners as $winner) {
                 if (($winner['requestId'] ?? null) === $requestId) return lotteryView($state);
             }
-            $used = array_fill_keys(array_map('lotteryTicketKey', $winners), true);
+            if (!count($tickets)) fail(409, 'Сначала загрузите билеты.');
+            $cycleCount = count($winners) % count($tickets);
+            $cycleWinners = $cycleCount ? array_slice($winners, -$cycleCount) : [];
+            if (!$cycleCount && count($tickets) > 1 && count($winners)) {
+                $cycleWinners = array_slice($winners, -1);
+            }
+            $used = array_fill_keys(array_map('lotteryTicketKey', $cycleWinners), true);
             $remaining = array_values(array_filter($tickets, fn($t)=>!isset($used[lotteryTicketKey($t)])));
-            if (!count($remaining)) fail(409, 'Все билеты уже разыграны.');
             $winners[] = $remaining[random_int(0, count($remaining)-1)] + ['requestId'=>$requestId];
-            sql('UPDATE TorosLottery SET winners=?,drawId=?,revealAt=DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 10 SECOND) WHERE id=1',
+            sql('UPDATE TorosLottery SET winners=?,drawId=?,revealAt=DATE_ADD(UTC_TIMESTAMP(3),INTERVAL 5 SECOND) WHERE id=1',
                 [json_encode($winners),$requestId]);
             return lotteryView(lotteryState());
         });

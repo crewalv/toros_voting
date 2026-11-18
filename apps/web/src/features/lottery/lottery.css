@@ -10,6 +10,7 @@
 .lottery-start:disabled { opacity: .6; cursor: default; }
 .lottery-start:focus-visible { outline: 4px solid white; outline-offset: 4px; }
 .lottery-admin { min-height: 100vh; padding: 2rem; display: grid; gap: 1rem; align-content: start; }
+.lottery-admin > :is(h1, h2, p, ol) { color: #eef3f9; }
 .lottery-admin textarea { width: 100%; }
 .lottery-admin .admin-panel { display: grid; gap: .75rem; }
 .lottery-error { background: #442128; padding: .5em 1em; font-size: clamp(18px, 2vw, 32px); }

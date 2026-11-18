@@ -51,7 +51,7 @@ export function LotteryPage({ admin = false }: { admin?: boolean }) {
   }, []);
   useEffect(() => {
     if (!state?.running || !video.current) return;
-    video.current.currentTime = Math.max(0, (10000 - state.remainingMs) / 1000);
+    video.current.currentTime = Math.max(0, (5000 - state.remainingMs) / 1000);
     void video.current.play().catch(() => setError('Нажмите на видео, чтобы разрешить воспроизведение.'));
   }, [state?.drawId, state?.running]);
 
@@ -72,8 +72,7 @@ export function LotteryPage({ admin = false }: { admin?: boolean }) {
     <a className="button" href="/lottery" target="_blank" rel="noreferrer">Открыть экран розыгрыша</a>
     <section className="admin-panel">
       <h2>Список купленных билетов</h2>
-      <p>Вставьте три столбца из таблицы — сектор, ряд, место — или по одному билету в строке.</p>
-      <label>Билеты<textarea rows={10} value={text} onChange={e => setText(e.target.value)} placeholder={'сектор 1 ряд 5 место 20\nсектор 2 ряд 3 место 40'} /></label>
+      <label>Билеты<textarea rows={10} value={text} onChange={e => setText(e.target.value)} /></label>
       <p>Уникальных мест {parsed.tickets.length}</p>
       {parsed.errors.length > 0 && <p role="alert">Проверьте строки {parsed.errors.slice(0, 20).join(', ')}. Заголовок таблицы удалите.</p>}
       <ul>{parsed.tickets.slice(0, 8).map(t => <li key={label(t)}>{label(t)}</li>)}</ul>
@@ -89,7 +88,7 @@ export function LotteryPage({ admin = false }: { admin?: boolean }) {
     <button className="lottery-start" disabled={busy || state?.running || !state?.remaining} onClick={draw}>{state?.running ? 'Розыгрыш идёт…' : state?.winner ? 'Следующий розыгрыш' : 'Начать розыгрыш'}</button>
     {state?.winner && <h2>{label(state.winner)}</h2>}
     {error && <p role="alert">{error}</p>}
-    <h2>Выпавшие билеты</h2><ol>{state?.winners.map(t => <li key={label(t)}>{label(t)}</li>)}</ol>
+    <h2>Выпавшие билеты</h2><ol>{state?.winners.map((t, index) => <li key={index}>{label(t)}</li>)}</ol>
   </main>;
 
   return <main className="lottery-screen">
