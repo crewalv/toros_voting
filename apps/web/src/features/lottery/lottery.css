@@ -8,6 +8,7 @@
 .lottery-result h2 { font-size: clamp(36px, 6.5vw, 116px); line-height: 1.05; overflow-wrap: anywhere; }
 .lottery-start { padding: .3em 1em; border: 2px solid #67f89e; background: #008e35; color: white; border-radius: 8px; font: 900 clamp(24px, 4vw, 64px)/1.1 "Roboto Condensed", sans-serif; cursor: pointer; }
 .lottery-start:disabled { opacity: .6; cursor: default; }
+.lottery-screen > .lottery-start { font-size: clamp(32px, 6vw, 96px); padding: .35em 1em; }
 .lottery-start:focus-visible { outline: 4px solid white; outline-offset: 4px; }
 .lottery-admin { min-height: 100vh; padding: 2rem; display: grid; gap: 1rem; align-content: start; }
 .lottery-admin > :is(h1, h2, p, ol) { color: #eef3f9; }
