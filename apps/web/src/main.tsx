@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AdminPage } from './features/admin/AdminPage';
+import { LotteryPage } from './features/lottery/LotteryPage';
 import { DisplayPage } from './features/display/DisplayPage';
 import { PreviewPage, VotingPage } from './features/voting/VotingPage';
 import { api, errorMessage } from './api';
@@ -39,6 +40,8 @@ function HomeMatch() {
 
 function App() {
   const path = location.pathname.replace(/\/$/, '') || '/';
+  if (path === '/lottery') return <LotteryPage />;
+  if (path === '/admin2') return <LotteryPage admin />;
   const route = /^\/(match|display)\/([1-9]\d*)$/.exec(path);
   if (route) return route[1] === 'match' ? <VotingPage id={Number(route[2])} /> : <DisplayPage id={Number(route[2])} />;
   if (path === '/display') return <DisplayPage />;

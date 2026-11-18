@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS TorosLottery (
+ id TINYINT UNSIGNED PRIMARY KEY,
+ tickets JSON NOT NULL,
+ winners JSON NOT NULL,
+ drawId CHAR(32) NULL,
+ revealAt DATETIME(3) NULL
+) ENGINE=InnoDB;
+INSERT IGNORE INTO TorosLottery (id,tickets,winners) VALUES (1,JSON_ARRAY(),JSON_ARRAY());
