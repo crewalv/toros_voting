@@ -94,7 +94,7 @@ export function LotteryPage({ admin = false }: { admin?: boolean }) {
 
   return <main className="lottery-screen">
     <video ref={video} poster="/lottery-media/poster.jpg" key={state?.running ? 'running' : 'idle'} src={state?.running ? '/lottery-media/running.mp4' : '/lottery-media/idle.mp4'} autoPlay muted playsInline loop={!state?.running} onClick={() => void video.current?.play()} />
-    <header><img src="/images/toros.svg" alt="Торос" /><h1>Розыгрыш билетов</h1></header>
+    <header><img src="/images/toros.svg" alt="Торос" /></header>
     <div className="lottery-result" aria-live="polite">
       {state?.running ? <h2>Выбираем счастливый билет!</h2> : state?.winner ? <><p>Выигрышный билет</p><h2>{label(state.winner)}</h2></> : <h2>{state?.total ? 'Готовы узнать победителя?' : 'Ожидаем начала розыгрыша'}</h2>}
     </div>
