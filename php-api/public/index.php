@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require dirname(__DIR__).'/bootstrap.php';
+require dirname(__DIR__).'/lottery-current.php';
 
 function respond(mixed $value, int $status = 200): never {
     http_response_code($status);
@@ -12,8 +13,7 @@ function respond(mixed $value, int $status = 200): never {
     exit;
 }
 
-function body(): array {
-    $maximum = 16385;
+function body(int $maximum = 16385): array {
     $raw = file_get_contents('php://input', false, null, 0, $maximum);
     if (strlen($raw) >= $maximum) fail(413, 'Слишком большой список.');
     $data = json_decode($raw, true);
@@ -98,7 +98,7 @@ function admin(string $method, string $path): never {
     $account = $hash ? row('SELECT a.login FROM AdminSession s JOIN Admin a ON a.id=s.adminId
         WHERE s.tokenHash=? AND s.expiresAt>UTC_TIMESTAMP(3)', [$hash]) : null;
     if (!$account) fail(401, 'Войдите в панель организатора.');
-    if ($method === 'GET' && $path === '/admin/lottery') respond(['login'=>$account['login']]);
+    if (str_starts_with($path, '/admin/lottery')) lotteryAdmin($method, $path);
 
     if ($method === 'POST' && $path === '/admin/logout') {
         sql('DELETE FROM AdminSession WHERE tokenHash=?', [$hash]);
@@ -359,6 +359,7 @@ try {
     $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
     if ($method !== 'GET' && (($_SERVER['HTTP_X_TOROS_REQUEST'] ?? '') !== '1' ||
         ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? '') === 'cross-site')) fail(403, 'Запрос отклонён.');
+    if ($method === 'GET' && $path === '/api/lottery') respond(lotteryView(lotteryRead()));
     route($method,substr($path,4));
 } catch (HttpError $error) {
     respond(['error'=>$error->getMessage()],$error->getCode());
