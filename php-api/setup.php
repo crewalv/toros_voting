@@ -21,6 +21,7 @@ try {
         throw new RuntimeException('Incomplete schema. Inspect the database before running setup again.');
     }
     require __DIR__.'/migrate-voting-deadline.php';
+    require __DIR__.'/migrate-lottery-current.php';
     db()->exec('CREATE TABLE IF NOT EXISTS TorosRateLimit (
         bucket CHAR(64) NOT NULL, windowStart BIGINT NOT NULL, hits INT NOT NULL,
         PRIMARY KEY (bucket,windowStart), INDEX (windowStart)

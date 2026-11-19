@@ -45,3 +45,4 @@ jobs:
           curl --fail --retry 10 --retry-connrefused http://127.0.0.1:8000/api/health
           curl --fail http://127.0.0.1:8000/admin >/dev/null
           node php-api/smoke.mjs
+          node php-api/lottery-current-smoke.mjs
